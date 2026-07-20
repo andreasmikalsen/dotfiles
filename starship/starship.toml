@@ -18,6 +18,27 @@ $git_state\
 $character
 """
 
+#format = """
+#$directory\
+#$git_branch\
+#$git_status\
+#$git_metrics\
+#$git_state\
+#$fill\
+#$python\
+#$lua\
+#$nodejs\
+#$golang\
+#$kotlin\
+#$java\
+#$package\
+#$docker_context\
+#$jobs\
+#$cmd_duration\
+#$line_break\
+#$character
+#"""
+
 palette = "nord"
 
 add_newline = false
@@ -49,6 +70,9 @@ up_to_date = ""
 
 [git_metrics]
 disabled = false
+
+[fill]
+symbol = " "
 
 [lua]
 symbol = ' '
