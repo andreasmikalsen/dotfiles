@@ -40,6 +40,16 @@ Change the absolute path to zig-cc and zig-cxx in `nvim/lua/config.lua`
 
 `gh extension install dlvhdr/gh-dash`
 
+#### Install diffview
+- Make sure you have Go: [go.dev](https://go.dev/doc/install)
+
+```
+git clone https://github.com/dlvhdr/diffnav.git
+cd diffnav
+go install .
+
+winget install dandavison.delta
+```
 Install [Zellij](https://zellij.dev/)
 ## Setup junctions on windows
 
