@@ -1,0 +1,45 @@
+1:23AM [1;38;5;86mINFO[m [2m<cmd/root.go:200>[m Logging to debug.log
+1:23AM [1;38;5;204mERRO[m [2m<cmd/root.go:216>[m error while determining git and github repos [2merr[m[2m=[m"unable to determine current repository, none of the git remotes configured for this repository point to a known GitHub host"
+1:23AM [1;38;5;86mINFO[m [2m<cmd/root.go:220>[m found git repo at path [2mpath[m[2m=[mC:\Users\AsyncPC\configs
+1:23AM [1;38;5;192mWARN[m [2m<cmd/root.go:237>[m did not find github repo at current path
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:1065>[m window size changed [2mwidth[m[2m=[m164 [2mheight[m[2m=[m47
+1:23AM [1;38;5;63mDEBU[m [2m<config/parser.go:589>[m using global config path [2mpath[m[2m=[mC:\Users\AsyncPC\.config\gh-dash\config.yml
+1:23AM [1;38;5;86mINFO[m [2m<config/parser.go:724>[m Loaded config [2mpath[m[2m=[mC:\Users\AsyncPC\.config\gh-dash\config.yml
+1:23AM [1;38;5;63mDEBU[m [2m<keys/keys.go:257>[m Rebinding universal keys [2mkeys[m[2m=[m[]
+1:23AM [1;38;5;63mDEBU[m [2m<theme/theme.go:178>[m error text [2mcfg[m[2m=[m"" [2mdefault[m[2m=[m"{Light:1 Dark:9}"
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:98>[m Starting task [2mid[m[2m=[m"fetching_prs_1_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301"
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:98>[m Starting task [2mid[m[2m=[m"fetching_prs_2_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301"
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:98>[m Starting task [2mid[m[2m=[m"fetching_prs_3_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301"
+1:23AM [1;38;5;63mDEBU[m [2m<tui/ui.go:692>[m Setting markdownStyle in initMsg
+1:23AM [1;38;5;63mDEBU[m [2m<tui/ui.go:695>[m HasDarkBackground: true, BackgroundSource: compat
+1:23AM [1;38;5;63mDEBU[m [2m<markdown/markdownRenderer.go:37>[m InitializeMarkdownStyle: assigned ctx.hasDarkBackground=true, markdownStyleSource="compat"
+1:23AM [1;38;5;63mDEBU[m [2m<tui/ui.go:858>[m Setting markdownStyle in BackgroundColorMsg
+1:23AM [1;38;5;63mDEBU[m [2m<tui/ui.go:861>[m HasDarkBackground: true, BackgroundSource: bubbletea
+1:23AM [1;38;5;63mDEBU[m [2m<markdown/markdownRenderer.go:37>[m InitializeMarkdownStyle: assigned ctx.hasDarkBackground=true, markdownStyleSource="bubbletea"
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:1065>[m window size changed [2mwidth[m[2m=[m164 [2mheight[m[2m=[m47
+1:23AM [1;38;5;63mDEBU[m [2m<data/prapi.go:554>[m Fetching PRs [2mquery[m[2m=[m"is:open -author:@dependabot" [2mlimit[m[2m=[m20 [2mendCursor[m[2m=[m<nil>
+1:23AM [1;38;5;63mDEBU[m [2m<data/prapi.go:554>[m Fetching PRs [2mquery[m[2m=[m"is:open involves:@me -author:@me" [2mlimit[m[2m=[m20 [2mendCursor[m[2m=[m<nil>
+1:23AM [1;38;5;63mDEBU[m [2m<data/prapi.go:554>[m Fetching PRs [2mquery[m[2m=[m"is:open author:@me" [2mlimit[m[2m=[m20 [2mendCursor[m[2m=[m<nil>
+1:23AM [1;38;5;63mDEBU[m [2m<data/commonapi.go:32>[m Fetching latest version
+1:23AM [1;38;5;86mINFO[m [2m<data/commonapi.go:37>[m Successfully fetched latest version [2mversion[m[2m=[mv4.25.2
+1:23AM [1;38;5;86mINFO[m [2m<data/prapi.go:559>[m Successfully fetched PRs [2mcount[m[2m=[m0
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:717>[m Task finished [2mid[m[2m=[m"fetching_prs_3_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301"
+1:23AM [1;38;5;86mINFO[m [2m<data/prapi.go:559>[m Successfully fetched PRs [2mcount[m[2m=[m2
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:717>[m Task finished [2mid[m[2m=[m"fetching_prs_2_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301"
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:1065>[m window size changed [2mwidth[m[2m=[m120 [2mheight[m[2m=[m47
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:1065>[m window size changed [2mwidth[m[2m=[m120 [2mheight[m[2m=[m30
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:1065>[m window size changed [2mwidth[m[2m=[m188 [2mheight[m[2m=[m49
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:717>[m Task finished [2mid[m[2m=[m"fetching_prs_1_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301"
+1:23AM [1;38;5;204mERRO[m [2m<tui/ui.go:719>[m Task finished with error [2mid[m[2m=[m"fetching_prs_1_2026-07-22 01:23:23.0097854 +0200 CEST m=+0.095380301" [2merr[m[2m=[m"non-200 OK status code: 502 Bad Gateway body: \"<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n\""
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:195>[m Key pressed [2mkey[m[2m=[ml
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:195>[m Key pressed [2mkey[m[2m=[mj
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:195>[m Key pressed [2mkey[m[2m=[mh
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:195>[m Key pressed [2mkey[m[2m=[mr
+1:23AM [1;38;5;86mINFO[m [2m<tui/ui.go:98>[m Starting task [2mid[m[2m=[m"fetching_prs_1_2026-07-22 01:23:54.5498345 +0200 CEST m=+31.635429401"
+1:23AM [1;38;5;63mDEBU[m [2m<data/prapi.go:554>[m Fetching PRs [2mquery[m[2m=[m"is:open -author:@dependabot" [2mlimit[m[2m=[m20 [2mendCursor[m[2m=[m<nil>
+1:24AM [1;38;5;86mINFO[m [2m<data/prapi.go:559>[m Successfully fetched PRs [2mcount[m[2m=[m84820691
+1:24AM [1;38;5;86mINFO[m [2m<tui/ui.go:717>[m Task finished [2mid[m[2m=[m"fetching_prs_1_2026-07-22 01:23:54.5498345 +0200 CEST m=+31.635429401"
+1:25AM [1;38;5;86mINFO[m [2m<tui/ui.go:98>[m Starting task [2mid[m[2m=[m"fetching_prs_1_Y3Vyc29yOjE="
+1:25AM [1;38;5;63mDEBU[m [2m<data/prapi.go:554>[m Fetching PRs [2mquery[m[2m=[m"is:open -author:@dependabot" [2mlimit[m[2m=[m20 [2mendCursor[m[2m=[m0x31eb3a5226f8
+1:25AM [1;38;5;86mINFO[m [2m<tui/ui.go:195>[m Key pressed [2mkey[m[2m=[mspace
+1:25AM [1;38;5;86mINFO[m [2m<tui/ui.go:195>[m Key pressed [2mkey[m[2m=[mq

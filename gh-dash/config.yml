@@ -1,8 +1,8 @@
 prSections:
-  - title: My Pull Requests
-    filters: is:open
   - title: Needs My Review
-    filters: is:open -author:dependabot
+    filters: is:open -author:@dependabot
+  - title: My Pull Requests
+    filters: is:open author:@me
   - title: Involved
     filters: is:open involves:@me -author:@me
 issuesSections:
@@ -98,6 +98,6 @@ theme:
       compact: true
 pager:
   diff: "diffnav"
-confirmQuit: false
+confirmQuit: true
 showAuthorIcons: true
 smartFilteringAtLaunch: true
