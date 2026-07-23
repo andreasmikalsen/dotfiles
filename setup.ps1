@@ -133,6 +133,7 @@ Ensure-WingetPackage "Nushell.Nushell" "Nushell" @("--scope", "machine")
 Ensure-WingetPackage "Starship.Starship" "Starship"
 Ensure-WingetPackage "GitHub.cli" "GitHub CLI"
 Ensure-WingetPackage "dandavison.delta" "delta"
+Ensure-WingetPackage "Zellij.Zellij" "Zellij"
 
 # npm
 Ensure-NpmGlobal "tree-sitter-cli"
@@ -152,10 +153,12 @@ $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $nvimSource   = Join-Path $repoRoot "nvim"
 $nuSource     = Join-Path $repoRoot "nushell"
 $ghDashSource = Join-Path $repoRoot "gh-dash"
+$zellijDashSource = Join-Path $repoRoot "zellij"
 
 $nvimTarget   = Join-Path $env:LOCALAPPDATA "nvim"
 $nuTarget     = Join-Path $env:APPDATA "nushell"
 $ghDashTarget = "~/.config/gh-dash"
+$zellijDashTarget = Join-Path $env:APPDATA "zellij/config"
 
 function Create-Junction {
     param(
@@ -187,6 +190,7 @@ Write-Host "=== Setup junctions ==="
 Create-Junction $nvimTarget $nvimSource
 Create-Junction $nuTarget $nuSource
 Create-Junction $ghDashTarget $ghDashSource
+Create-Junction $zellijDashTarget $zellijDashSource
 
 Write-Host ""
 Write-Host "=== Finished setting up junctions ==="
