@@ -10,5 +10,20 @@
 
 ## TODOs
 
-- [WezTerm](https://wezterm.org/)
-- [zellij](https://zellij.dev/)
+- [WezTerm](https://wezterm.org/) (branch)
+- [zellij](https://zellij.dev/) (branch)
+- [lazygit](https://github.com/jesseduffield/lazygit)
+
+fzf
+fd
+ripgrep
+
+zoxide
+
+eza
+
+Secret handling:
+1Password CLI
+Bitwarden CLI
+age
+sops
