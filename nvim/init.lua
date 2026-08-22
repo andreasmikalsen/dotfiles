@@ -203,6 +203,26 @@ local keymap = {
 	["OXY2DEV/markview.nvim"] = {
 		{ "<leader>ns", cmd("Markview splitOpen"), desc = "Open markdown [S]plit view" },
 	},
+  ['neovim/nvim-lspconfig'] = {
+     { 'gs',          nvim.lsp.buf.signature_help },
+     { '<leader>grn', nvim.lsp.buf.rename },
+     { '<leader>f',   nvim.lsp.buf.format,        mode = { 'n', 'v' } },
+     { '<leader>ca',  nvim.lsp.buf.code_action },
+     { '<leader>k',   nvim.lsp.buf.hover },
+     { 'gk',          nvim.diagnostic.open_float },
+     { '[d',          nvim.diagnostic.goto_prev },
+     { ']d',          nvim.diagnostic.goto_next },
+   },
+   ['folke/trouble.nvim'] = {
+     { 'gd',        cmd('Trouble lsp_definitions')},
+     { 'gD',        cmd('Trouble lsp_declarations')},
+     { 'gi',        cmd('Trouble lsp_implementations')},
+     { 'go',        cmd('Trouble lsp_type_definitions')},
+     { 'gr',        cmd('Trouble lsp_references')},
+     { 'g?',        cmd('Trouble diagnostics')},
+     { '<leader>s', cmd('Trouble symbols toggle')},
+     { 'gq',        cmd('Trouble close')},
+   },
 }
 
 -- make list of plugins then append to it
@@ -504,7 +524,7 @@ addplugin({
 		{ "mason-org/mason-lspconfig.nvim", opts = {
 			automatic_enable = true,
 		} },
-		{ "j-hui/fidget.nvim" },
+		{ "j-hui/fidget.nvim", opts = {} },
 		{
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			opts = {
@@ -512,26 +532,6 @@ addplugin({
 			},
 		},
 	},
-	config = function(_, opts)
-		nvim.api.nvim_create_autocmd("LspAttach", {
-			group = nvim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
-			callback = function(event)
-				local map = function(keys, func, desc, mode)
-					mode = mode or "n"
-					nvim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
-				end
-
-				map("grn", nvim.lsp.buf.rename, "[R]e[n]ame") -- Rename the variable under your cursor.
-				map("gra", nvim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" }) -- Execute a code action
-				map("grD", nvim.lsp.buf.declaration, "[G]oto [D]eclaration") -- Goto Declaration.
-			end,
-		})
-
-		for name, server in pairs(servers) do
-			nvim.lsp.config(name, server)
-			nvim.lsp.enable(name)
-		end
-	end,
 })
 
 -- Trouble

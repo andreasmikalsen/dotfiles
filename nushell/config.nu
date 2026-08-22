@@ -4,4 +4,5 @@ mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 alias gd  = gh dash
 alias dot = cd ~/dotfiles/
+alias github = cd ~/Documents/GitHub
 source ./nu_scripts/git-completion.nu

@@ -11,6 +11,7 @@ local servers = {
 			},
 		},
 	},
+  kotlin_lsp = {}
 }
 
 return servers
