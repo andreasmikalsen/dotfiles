@@ -40,6 +40,31 @@ local function ActivateThing(direction)
   return wezterm.action_callback(callback)
 end
 
+-- ON UPDATE RIGHT STATUS
+wezterm.on('update-status', function(window, pane)
+  local mode = window:active_key_table()
+
+  if mode == 'resize_mode' then
+    window:set_right_status(
+      wezterm.format {
+        { Foreground = { Color = '#1e1e2e' } },
+        { Background = { Color = '#f9e2af' } },
+        { Text = '  RESIZE  ' },
+      }
+    )
+  elseif mode == 'pane_mode' then
+    window:set_right_status(
+      wezterm.format {
+        { Foreground = { Color = '#1e1e2e' } },
+        { Background = { Color = '#89b4fa' } },
+        { Text = '  PANE  ' },
+      }
+    )
+  else
+    window:set_right_status('')
+  end
+end)
+
 config.initial_cols = 120
 config.initial_rows = 28
 
@@ -53,13 +78,102 @@ config.adjust_window_size_when_changing_font_size = false
 -- color_scheme = 'termnial.sexy'
 config.color_scheme = 'Catppuccin Mocha'
 config.enable_tab_bar = false
+config.hide_tab_bar_if_only_one_tab = false
+config.show_tabs_in_tab_bar = false
+config.show_new_tab_button_in_tab_bar = false
 config.font_size = 12.0
 config.font = wezterm.font('FiraCode Nerd Font')
+config.status_update_interval = 100
 
 config.window_decorations = 'TITLE'
 config.window_background_opacity = 1.00
 
 local MOD_KEY = "ALT"
+
+-- BELL
+config.audible_bell = "Disabled"
+config.visual_bell = {
+  fade_in_duration_ms = 75,
+  fade_out_duration_ms = 75,
+  target = 'CursorColor',
+}
+
+config.animation_fps = 24
+config.cursor_blink_ease_in = 'Linear'
+config.cursor_blink_ease_out = 'Linear'
+config.window_background_opacity = 1.0
+config.macos_window_background_blur = 0
+
+config.hide_tab_bar_if_only_one_tab = true
+config.use_resize_increments = false
+config.use_fancy_tab_bar = true
+config.tab_bar_at_bottom = true
+
+config.tab_max_width = 200
+config.window_padding = {
+  left = '10px',
+  right = '10px',
+  top = '10px',
+  bottom = 0,
+}
+config.inactive_pane_hsb = {
+  hue = 1.0,
+  saturation = 1.0,
+  brightness = 0.1,
+}
+config.foreground_text_hsb = {
+  hue = 1.0,
+  saturation = 1.0,
+  brightness = 1.0,
+}
+local background_color = '#000000' -- same background as neovim
+--local background_color = '#080c10' -- same background as neovim
+local active_fg = "#9f7e20";
+local active_bg = background_color;
+local hover_fg = "#93a1a1";
+local hover_bg = background_color;
+local inactive_fg = "#363a41";
+local inactive_bg = background_color;
+
+local MOD_KEY = "ALT"
+
+config.colors = {
+  background = background_color, -- same background as neovim
+
+  tab_bar = {
+    background = background_color, -- dark retro teal background
+
+    active_tab = {
+      bg_color = active_bg,
+      fg_color = active_fg,
+      intensity = "Bold",
+    },
+
+    inactive_tab = {
+      bg_color = inactive_bg,
+      fg_color = inactive_fg,
+    },
+
+    inactive_tab_hover = {
+      bg_color = hover_bg,
+      fg_color = hover_fg,
+    },
+
+    new_tab = {
+      bg_color = inactive_bg,
+      fg_color = inactive_fg,
+    },
+
+    new_tab_hover = {
+      bg_color = hover_bg,
+      fg_color = hover_fg,
+      italic = true,
+    },
+  },
+
+  visual_bell = '#222020',
+}
+
 
 config.keys = {
 	{
@@ -167,6 +281,10 @@ config.key_tables = {
     { key = 'RightArrow', action = act.AdjustPaneSize { 'Right', 1 } },
     { key = 'UpArrow', action = act.AdjustPaneSize { 'Up', 1 } },
     { key = 'DownArrow', action = act.AdjustPaneSize { 'Down', 1 } },
+
+    -- move pane
+    { key = 'h', mods = 'CTRL', action = act.RotatePanes 'CounterClockwise' },
+    { key = 'l', mods = 'CTRL', action = act.RotatePanes 'Clockwise' },
   },
 
 }
