@@ -77,9 +77,9 @@ config.adjust_window_size_when_changing_font_size = false
 
 -- color_scheme = 'termnial.sexy'
 config.color_scheme = 'Catppuccin Mocha'
-config.enable_tab_bar = false
+config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = false
-config.show_tabs_in_tab_bar = false
+config.show_tabs_in_tab_bar = true
 config.show_new_tab_button_in_tab_bar = false
 config.font_size = 12.0
 config.font = wezterm.font('FiraCode Nerd Font')
@@ -104,30 +104,29 @@ config.cursor_blink_ease_out = 'Linear'
 config.window_background_opacity = 1.0
 config.macos_window_background_blur = 0
 
-config.hide_tab_bar_if_only_one_tab = true
 config.use_resize_increments = false
-config.use_fancy_tab_bar = true
+config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
 
 config.tab_max_width = 200
 config.window_padding = {
-  left = '10px',
-  right = '10px',
-  top = '10px',
+  left = '5px',
+  right = '5px',
+  top = '5px',
   bottom = 0,
 }
 config.inactive_pane_hsb = {
   hue = 1.0,
   saturation = 1.0,
-  brightness = 0.1,
+  brightness = 0.4,
 }
 config.foreground_text_hsb = {
   hue = 1.0,
   saturation = 1.0,
   brightness = 1.0,
 }
+
 local background_color = '#000000' -- same background as neovim
---local background_color = '#080c10' -- same background as neovim
 local active_fg = "#9f7e20";
 local active_bg = background_color;
 local hover_fg = "#93a1a1";
@@ -135,13 +134,11 @@ local hover_bg = background_color;
 local inactive_fg = "#363a41";
 local inactive_bg = background_color;
 
-local MOD_KEY = "ALT"
-
-config.colors = {
-  background = background_color, -- same background as neovim
+local colors = {
+  background = background_color,
 
   tab_bar = {
-    background = background_color, -- dark retro teal background
+    background = background_color,
 
     active_tab = {
       bg_color = active_bg,
@@ -171,11 +168,11 @@ config.colors = {
     },
   },
 
-  visual_bell = '#222020',
+  visual_bell = '#022020',
 }
 
 
-config.keys = {
+local keys = {
 	{
 		key = 'q',
 		mods = MOD_KEY,
@@ -184,20 +181,26 @@ config.keys = {
   {
     key = 'w',
     mods = MOD_KEY,
-    action = act.ActivateKeyTable {
-      name = 'pane_mode',
-      one_shot = true,
-      prevent_fallback = true,
+    action = act.Multiple {
+      act.EmitEvent("keytable_pane_active"),
+      act.ActivateKeyTable {
+        name = 'pane_mode',
+        one_shot = true,
+        prevent_fallback = true,
+      },
     },
   },
   {
     key = 'r',
     mods = MOD_KEY,
-    action = act.ActivateKeyTable {
-      name = 'resize_mode',
-      one_shot = false,
-      prevent_fallback = true,
-    },
+    action = act.Multiple {
+      act.EmitEvent("keytable_resize_active"),
+      act.ActivateKeyTable {
+        name = 'resize_mode',
+        one_shot = false,
+        prevent_fallback = true,
+      },
+    }
   },
   { mods = MOD_KEY, key = 'j', action = ActivateThing('next') },
   { mods = MOD_KEY, key = 'k', action = ActivateThing('prev') },
@@ -209,7 +212,7 @@ config.keys = {
   { mods = MOD_KEY.."|CTRL", key = 'k', action = act.MoveTabRelative(-1) },
 }
 
-config.mouse_bindings = {
+local mouse_bindings = {
 	  -- Ctrl-click will open the link under the mouse cursor
   {
     event = { Up = { streak = 1, button = 'Left' } },
@@ -218,7 +221,7 @@ config.mouse_bindings = {
   },
 }
 
-config.key_tables = {
+local key_tables = {
 
   pane_mode = {
     -- Cancel the mode by pressing escape or enter
@@ -290,5 +293,9 @@ config.key_tables = {
 }
 
 config.enable_wayland = true
+
+config.key_tables = key_tables
+config.keys = keys
+config.colors = colors
 
 return config
