@@ -1,4 +1,0 @@
--- Set C compiler to zig
--- Use absolute path, nvim has issues resolving the cmd if relative path
-vim.env.CC = "C:\\Users\\<user>\\AppData\\Local\\nvim\\zig-cc.cmd"
-vim.env.CXX = "C:\\Users\\<user>\\AppData\\Local\\nvim\\zig-cxx.cmd"

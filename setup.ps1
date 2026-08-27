@@ -147,6 +147,72 @@ function Create-Junction {
     Write-Host "  $Target -> $Source"
 }
 
+function Ensure-MsvcBuildTools {
+    if (Get-Command link.exe -ErrorAction SilentlyContinue) {
+        Write-Host "[OK] MSVC Build Tools already available."
+        return
+    }
+
+    Write-Host "[INSTALL] Visual Studio C++ Build Tools..."
+
+    winget install `
+        --exact `
+        --id Microsoft.VisualStudio.2022.BuildTools `
+        --accept-package-agreements `
+        --accept-source-agreements `
+        --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Visual Studio C++ Build Tools installation failed."
+    }
+}
+
+function Ensure-Cargo {
+    if (Get-Command cargo -ErrorAction SilentlyContinue) {
+        Write-Host "[OK] Cargo already installed."
+        return
+    }
+
+    Write-Host "[INSTALL] Rust/Cargo..."
+
+    Ensure-WingetPackage "Rustlang.Rustup" "Rustup"
+
+    # Make Cargo available to the current setup.ps1 process.
+    $cargoBin = Join-Path $env:USERPROFILE ".cargo\bin"
+
+    if ($env:Path -notlike "*$cargoBin*") {
+        $env:Path = "$cargoBin;$env:Path"
+    }
+
+    # Ensure a stable Rust toolchain exists.
+    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        $rustup = Join-Path $cargoBin "rustup.exe"
+
+        if (Test-Path $rustup) {
+            & $rustup default stable
+        }
+    }
+
+    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        throw "Cargo installation failed."
+    }
+}
+
+function Ensure-GhReview {
+    Ensure-Cargo
+    Ensure-MsvcBuildTools
+
+    if (Get-Command gh-review -ErrorAction SilentlyContinue) {
+        Write-Host "[OK] gh-review already installed."
+        return
+    }
+
+    Write-Host "[INSTALL] gh-review..."
+    cargo install gh-review
+}
+
+
+
 Write-Host ""
 Write-Host "=== Installing dependencies ==="
 Write-Host ""
@@ -166,6 +232,9 @@ Ensure-NpmGlobal "tree-sitter-cli"
 # GitHub CLI extensions
 Ensure-GhExtension "dlvhdr/gh-dash"
 
+# Rust tools
+Ensure-GhReview
+
 # Go tool
 Install-Diffnav
 
@@ -174,6 +243,8 @@ Write-Host "=== Finished installing dependencies ==="
 
 # Setup junctions
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$env:DOTFILES = $repoRoot
+[Environment]::SetEnvironmentVariable("DOTFILES", $repoRoot, "User")
 
 $nvimSource    = Join-Path $repoRoot "nvim"
 $nuSource      = Join-Path $repoRoot "nushell"

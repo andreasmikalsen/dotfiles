@@ -1,6 +1,12 @@
+keybindings:
+  prs:
+    - key: R
+      name: Review PR
+      command: >
+        gh-review {{.RepoName}} {{.PrNumber}}
 prSections:
   - title: Needs My Review
-    filters: is:open -author:@dependabot
+    filters: is:open review-requested:@me -author:@dependabot
   - title: My Pull Requests
     filters: is:open author:@me
   - title: Involved
