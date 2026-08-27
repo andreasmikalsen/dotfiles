@@ -1,3 +1,5 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
 format = """
 $directory\
 $git_branch\
@@ -50,16 +52,10 @@ symbol = ' '
 [package]
 symbol = '󰏗 '
 
-[java]
-[kotlin]
-[maven]
-
 [docker_context]
 symbol = ' '
 style = 'fg:#06969A'
 format = '[$symbol]($style) $path'
-detect_files = ['docker-compose.yml', 'docker-compose.yaml', 'Dockerfile']
-detect_extensions = ['Dockerfile']
 
 [jobs]
 symbol = ' '
