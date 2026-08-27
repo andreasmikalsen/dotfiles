@@ -276,7 +276,7 @@ addplugin({
 -- GitSigns
 addplugin({
 	"lewis6991/gitsigns.nvim",
-	lazy = false,
+	lazy = true,
 	opts = {
 		signs = {
 			add = { text = "+" }, ---@diagnostic disable-line: missing-fields
@@ -291,6 +291,7 @@ addplugin({
 -- Pending keybinds
 addplugin({
 	"folke/which-key.nvim",
+  lazy = false,
 	opts = {
 		delay = 0,
 		-- Document existing key chains
@@ -307,7 +308,7 @@ addplugin({
 })
 
 -- Highlight and search for todo comments
-addplugin({ "folke/todo-comments.nvim" })
+-- addplugin({ "folke/todo-comments.nvim" })
 
 -- Telescope
 addplugin({
@@ -537,6 +538,7 @@ addplugin({
 -- Trouble
 addplugin({
 	"folke/trouble.nvim",
+  lazy = true,
 	opts = {
 		indent_lines = true,
 		focus = true,
@@ -615,6 +617,7 @@ addplugin({
 -- TREESITTER
 addplugin({
 	"nvim-treesitter/nvim-treesitter",
+  lazy = false,
 	build = ":TSUpdate",
 	opts = {
 		auto_install = true,
@@ -633,6 +636,7 @@ addplugin({
 -- Formatting
 addplugin({
 	"stevearc/conform.nvim",
+  lazy = true,
 	opts = {
 		notify_on_error = false,
 		format_on_save = function(bufnr)
@@ -661,6 +665,7 @@ addplugin({
 -- statusline
 addplugin({
 	"nvim-lualine/lualine.nvim",
+  lazy = true,
 	opts = {
 		options = {
 			icons_enabled = false,
@@ -742,7 +747,7 @@ addplugin({
 -- Completion
 addplugin({
 	"hrsh7th/nvim-cmp",
-	lazy = false,
+	lazy = true,
 	dependencies = {
 		"neovim/nvim-lspconfig",
 		"hrsh7th/cmp-nvim-lsp",
