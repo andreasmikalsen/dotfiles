@@ -1,11 +1,66 @@
 # ============================================================
-# Bootstrap development tools
+# Bootstrap development environment
+# ============================================================
+
+$ErrorActionPreference = "Stop"
+
+$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+
+# ============================================================
+# Environment helpers
+# ============================================================
+
+function Refresh-Path {
+    $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+
+    $paths = @(
+        $env:Path -split ";"
+        $machinePath -split ";"
+        $userPath -split ";"
+    ) |
+        Where-Object { $_ } |
+        Select-Object -Unique
+
+    $env:Path = $paths -join ";"
+}
+
+function Ensure-UserPathEntry {
+    param([string]$Path)
+
+    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $entries = @($userPath -split ";" | Where-Object { $_ })
+
+    $exists = $entries | Where-Object {
+        $_.TrimEnd("\") -ieq $Path.TrimEnd("\")
+    }
+
+    if ($exists) {
+        return
+    }
+
+    $newPath = (@($entries) + $Path) -join ";"
+
+    [Environment]::SetEnvironmentVariable(
+        "Path",
+        $newPath,
+        "User"
+    )
+
+    Refresh-Path
+}
+
+
+# ============================================================
+# WinGet
 # ============================================================
 
 function Test-WingetPackage {
     param([string]$Id)
 
-    $null -ne (winget list --exact --id $Id 2>$null | Select-String $Id)
+    $result = winget list --exact --id $Id 2>$null
+    $null -ne ($result | Select-String -SimpleMatch $Id)
 }
 
 function Ensure-WingetPackage {
@@ -22,64 +77,217 @@ function Ensure-WingetPackage {
 
     Write-Host "[INSTALL] $Name..."
 
-    winget install `
-        --exact `
-        --id $Id `
-        --accept-package-agreements `
-        --accept-source-agreements `
-        @Arguments
+    $wingetArgs = @(
+        "install"
+        "--exact"
+        "--id", $Id
+        "--accept-package-agreements"
+        "--accept-source-agreements"
+    ) + $Arguments
+
+    & winget @wingetArgs
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install $Name."
+    }
+
+    Refresh-Path
 }
+
+
+# ============================================================
+# MSVC Build Tools
+# ============================================================
+
+function Test-MsvcBuildTools {
+    $vswhere = Join-Path `
+        ${env:ProgramFiles(x86)} `
+        "Microsoft Visual Studio\Installer\vswhere.exe"
+
+    if (-not (Test-Path $vswhere)) {
+        return $false
+    }
+
+    $installation = & $vswhere `
+        -latest `
+        -products * `
+        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+        -property installationPath
+
+    return -not [string]::IsNullOrWhiteSpace(
+        ($installation | Select-Object -First 1)
+    )
+}
+
+function Ensure-MsvcBuildTools {
+    if (Test-MsvcBuildTools) {
+        Write-Host "[OK] MSVC C++ Build Tools already installed."
+        return
+    }
+
+    Write-Host "[INSTALL] Visual Studio C++ Build Tools..."
+
+    $vswhere = Join-Path `
+        ${env:ProgramFiles(x86)} `
+        "Microsoft Visual Studio\Installer\vswhere.exe"
+
+    $setup = Join-Path `
+        ${env:ProgramFiles(x86)} `
+        "Microsoft Visual Studio\Installer\setup.exe"
+
+    # Check whether Build Tools itself already exists but lacks C++.
+    $buildToolsPath = $null
+
+    if (Test-Path $vswhere) {
+        $buildToolsPath = & $vswhere `
+            -latest `
+            -products Microsoft.VisualStudio.Product.BuildTools `
+            -property installationPath
+    }
+
+    if ($buildToolsPath -and (Test-Path $setup)) {
+        # Modify an existing Build Tools installation.
+        & $setup modify `
+            --installPath $buildToolsPath `
+            --add Microsoft.VisualStudio.Workload.VCTools `
+            --includeRecommended `
+            --passive `
+            --norestart
+
+        if ($LASTEXITCODE -notin @(0, 3010)) {
+            throw "Failed to add the MSVC C++ workload."
+        }
+    }
+    else {
+        # Install Build Tools and the C++ workload.
+        winget install `
+            --exact `
+            --id Microsoft.VisualStudio.2022.BuildTools `
+            --accept-package-agreements `
+            --accept-source-agreements `
+            --override "--passive --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "Visual Studio C++ Build Tools installation failed."
+        }
+    }
+
+    if (-not (Test-MsvcBuildTools)) {
+        throw "MSVC C++ Build Tools could not be detected after installation."
+    }
+
+    Write-Host "[OK] MSVC C++ Build Tools installed."
+}
+
+# ============================================================
+# Rust / Cargo
+# ============================================================
+
+function Ensure-Cargo {
+    if (Get-Command cargo -ErrorAction SilentlyContinue) {
+        Write-Host "[OK] Cargo already installed."
+        return
+    }
+
+    Write-Host "[INSTALL] Rust/Cargo..."
+
+    Ensure-WingetPackage "Rustlang.Rustup" "Rustup"
+
+    $cargoBin = Join-Path $env:USERPROFILE ".cargo\bin"
+    Ensure-UserPathEntry $cargoBin
+
+    Refresh-Path
+
+    if (-not (Get-Command rustup -ErrorAction SilentlyContinue)) {
+        throw "Rustup installation failed."
+    }
+
+    rustup default stable
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install the stable Rust toolchain."
+    }
+
+    Refresh-Path
+
+    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        throw "Cargo installation failed."
+    }
+}
+
+function Ensure-CargoPackage {
+    param(
+        [string]$Package,
+        [string]$Command = $Package
+    )
+
+    if (Get-Command $Command -ErrorAction SilentlyContinue) {
+        Write-Host "[OK] $Package already installed."
+        return
+    }
+
+    Ensure-MsvcBuildTools
+    Ensure-Cargo
+
+    Write-Host "[INSTALL] $Package..."
+
+    cargo install $Package
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install Cargo package '$Package'."
+    }
+
+    Refresh-Path
+}
+
+
+# ============================================================
+# GitHub CLI extensions
+# ============================================================
 
 function Ensure-GhExtension {
     param([string]$Name)
 
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
-        Write-Warning "GitHub CLI is not installed. Skipping '$Name'."
-        return
+        throw "GitHub CLI is not installed."
     }
 
-    if (gh extension list | Select-String $Name) {
+    if (gh extension list | Select-String -SimpleMatch $Name) {
         Write-Host "[OK] gh extension '$Name' already installed."
         return
     }
 
     Write-Host "[INSTALL] gh extension '$Name'..."
+
     gh extension install $Name
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install gh extension '$Name'."
+    }
 }
 
-function Ensure-NpmGlobal {
-    param([string]$Package)
 
-    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-        Write-Warning "npm is not installed. Skipping '$Package'."
-        return
-    }
+# ============================================================
+# diffnav
+# ============================================================
 
-    if (npm list -g --depth=0 2>$null | Select-String $Package) {
-        Write-Host "[OK] npm package '$Package' already installed."
-        return
-    }
-
-    Write-Host "[INSTALL] npm package '$Package'..."
-    npm install -g $Package
-}
-
-function Install-Diffnav {
+function Ensure-Diffnav {
     if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
-        Write-Warning "Go is not installed. Skipping diffnav."
-        return
+        throw "Go is not installed."
     }
 
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        Write-Warning "Git is not installed. Skipping diffnav."
-        return
+        throw "Git is not installed."
     }
 
     $goBin = if ($env:GOBIN) {
         $env:GOBIN
-    } else {
-        (go env GOPATH).Trim() + "\bin"
     }
+    else {
+        Join-Path (go env GOPATH).Trim() "bin"
+    }
+
+    Ensure-UserPathEntry $goBin
 
     $exe = Join-Path $goBin "diffnav.exe"
 
@@ -98,29 +306,55 @@ function Install-Diffnav {
 
     git clone https://github.com/dlvhdr/diffnav.git $installPath
 
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to clone diffnav."
+    }
+
     Push-Location $installPath
+
     try {
         go install .
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to install diffnav."
+        }
     }
     finally {
         Pop-Location
-        Remove-Item $installPath -Recurse -Force
+
+        if (Test-Path $installPath) {
+            Remove-Item $installPath -Recurse -Force
+        }
     }
+
+    Refresh-Path
 }
 
-function Initialize-Neovim {
-    if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
-        Write-Warning "Neovim is not installed. Skipping plugin installation."
+# ============================================================
+# Git configuration
+# ============================================================
+
+function Ensure-GitAlias {
+    param(
+        [string]$Name,
+        [string]$Command
+    )
+
+    $current = git config --global --get "alias.$Name" 2>$null
+
+    if ($current -eq $Command) {
+        Write-Host "[OK] Git alias '$Name' already configured."
         return
     }
 
-    Write-Host "[SETUP] Installing Neovim plugins..."
-
-    nvim --headless `
-        "+Lazy! sync" `
-        "+MasonUpdate" `
-        "+qa"
+    Write-Host "[CONFIG] git $Name -> $Command"
+    git config --global "alias.$Name" $Command
 }
+
+
+# ============================================================
+# Junctions
+# ============================================================
 
 function Create-Junction {
     param(
@@ -128,7 +362,31 @@ function Create-Junction {
         [string]$Source
     )
 
-    if (Test-Path $Target) {
+    $sourceFull = [IO.Path]::GetFullPath($Source)
+
+    $item = Get-Item `
+        -LiteralPath $Target `
+        -Force `
+        -ErrorAction SilentlyContinue
+
+    if ($item) {
+        $isLink = $item.Attributes -band [IO.FileAttributes]::ReparsePoint
+
+        if ($isLink -and $item.Target) {
+            $existingTarget = [IO.Path]::GetFullPath(
+                [string]$item.Target
+            )
+
+            if (
+                $existingTarget.TrimEnd("\") -ieq
+                $sourceFull.TrimEnd("\")
+            ) {
+                Write-Host "[OK] Junction already exists:"
+                Write-Host "  $Target -> $Source"
+                return
+            }
+        }
+
         Write-Host ""
         Write-Host "$Target already exists."
 
@@ -142,108 +400,110 @@ function Create-Junction {
         Remove-Item $Target -Recurse -Force
     }
 
-    New-Item -ItemType Junction -Path $Target -Target $Source | Out-Null
-    Write-Host "Created:"
+    $parent = Split-Path -Parent $Target
+
+    if (-not (Test-Path $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    New-Item `
+        -ItemType Junction `
+        -Path $Target `
+        -Target $Source |
+        Out-Null
+
+    Write-Host "[OK] Created junction:"
     Write-Host "  $Target -> $Source"
 }
 
-function Ensure-MsvcBuildTools {
-    if (Get-Command link.exe -ErrorAction SilentlyContinue) {
-        Write-Host "[OK] MSVC Build Tools already available."
-        return
+
+# ============================================================
+# Neovim
+# ============================================================
+
+function Initialize-Neovim {
+    if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
+        throw "Neovim is not installed."
     }
 
-    Write-Host "[INSTALL] Visual Studio C++ Build Tools..."
+    Write-Host "[SETUP] Installing Neovim plugins..."
 
-    winget install `
-        --exact `
-        --id Microsoft.VisualStudio.2022.BuildTools `
-        --accept-package-agreements `
-        --accept-source-agreements `
-        --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
+    nvim --headless `
+        "+Lazy! sync" `
+        "+qa"
 
     if ($LASTEXITCODE -ne 0) {
-        throw "Visual Studio C++ Build Tools installation failed."
+        throw "Neovim plugin installation failed."
+    }
+
+    Write-Host "[SETUP] Installing Mason tools..."
+
+    nvim --headless `
+        "+MasonToolsInstallSync" `
+        "+qa"
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Mason tool installation failed."
     }
 }
 
-function Ensure-Cargo {
-    if (Get-Command cargo -ErrorAction SilentlyContinue) {
-        Write-Host "[OK] Cargo already installed."
-        return
-    }
+# ============================================================
+# Environment
+# ============================================================
 
-    Write-Host "[INSTALL] Rust/Cargo..."
+$env:DOTFILES = $repoRoot
 
-    Ensure-WingetPackage "Rustlang.Rustup" "Rustup"
-
-    # Make Cargo available to the current setup.ps1 process.
-    $cargoBin = Join-Path $env:USERPROFILE ".cargo\bin"
-
-    if ($env:Path -notlike "*$cargoBin*") {
-        $env:Path = "$cargoBin;$env:Path"
-    }
-
-    # Ensure a stable Rust toolchain exists.
-    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
-        $rustup = Join-Path $cargoBin "rustup.exe"
-
-        if (Test-Path $rustup) {
-            & $rustup default stable
-        }
-    }
-
-    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
-        throw "Cargo installation failed."
-    }
-}
-
-function Ensure-GhReview {
-    Ensure-Cargo
-    Ensure-MsvcBuildTools
-
-    if (Get-Command gh-review -ErrorAction SilentlyContinue) {
-        Write-Host "[OK] gh-review already installed."
-        return
-    }
-
-    Write-Host "[INSTALL] gh-review..."
-    cargo install gh-review
-}
+[Environment]::SetEnvironmentVariable(
+    "DOTFILES",
+    $repoRoot,
+    "User"
+)
 
 
+# ============================================================
+# Install dependencies
+# ============================================================
 
 Write-Host ""
 Write-Host "=== Installing dependencies ==="
 Write-Host ""
 
-# Core tools
+# Core
+Ensure-WingetPackage "Git.Git" "Git"
 Ensure-WingetPackage "Neovim.Neovim" "Neovim"
 Ensure-WingetPackage "Nushell.Nushell" "Nushell" @("--scope", "machine")
 Ensure-WingetPackage "Starship.Starship" "Starship"
 Ensure-WingetPackage "GitHub.cli" "GitHub CLI"
 Ensure-WingetPackage "dandavison.delta" "Delta"
-Ensure-WingetPackage "wez.wezterm" "Wezterm"
+Ensure-WingetPackage "wez.wezterm" "WezTerm"
+Ensure-WingetPackage "GoLang.Go" "Go"
 
-# npm
-Ensure-NpmGlobal "tree-sitter-cli"
+Refresh-Path
 
-# GitHub CLI extensions
+# Rust / C++ toolchain
+Ensure-MsvcBuildTools
+Ensure-Cargo
+
+# Cargo tools
+Ensure-CargoPackage "tree-sitter-cli" "tree-sitter"
+Ensure-CargoPackage "gh-review" "gh-review"
+
+# GitHub
 Ensure-GhExtension "dlvhdr/gh-dash"
 
-# Rust tools
-Ensure-GhReview
+# Go tools
+Ensure-Diffnav
 
-# Go tool
-Install-Diffnav
+# Git configuration
+Ensure-GitAlias "c" "checkout"
 
 Write-Host ""
 Write-Host "=== Finished installing dependencies ==="
 
-# Setup junctions
-$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$env:DOTFILES = $repoRoot
-[Environment]::SetEnvironmentVariable("DOTFILES", $repoRoot, "User")
+
+# ============================================================
+# Junctions
+# ============================================================
 
 $nvimSource    = Join-Path $repoRoot "nvim"
 $nuSource      = Join-Path $repoRoot "nushell"
@@ -252,10 +512,12 @@ $weztermSource = Join-Path $repoRoot "wezterm"
 
 $nvimTarget    = Join-Path $env:LOCALAPPDATA "nvim"
 $nuTarget      = Join-Path $env:APPDATA "nushell"
-$ghDashTarget  = "~/.config/gh-dash"
+$ghDashTarget  = Join-Path $env:USERPROFILE ".config\gh-dash"
 $weztermTarget = Join-Path $env:USERPROFILE ".config\wezterm"
 
-Write-Host "=== Setup junctions ==="
+Write-Host ""
+Write-Host "=== Setting up junctions ==="
+Write-Host ""
 
 Create-Junction $nvimTarget $nvimSource
 Create-Junction $nuTarget $nuSource
@@ -265,10 +527,17 @@ Create-Junction $weztermTarget $weztermSource
 Write-Host ""
 Write-Host "=== Finished setting up junctions ==="
 
+
+# ============================================================
+# Neovim
+# ============================================================
+
 Write-Host ""
-Write-Host "=== Initialize Neovim ==="
+Write-Host "=== Initializing Neovim ==="
+Write-Host ""
 
 Initialize-Neovim
 
 Write-Host ""
-Write-Host "Done!"
+Write-Host "=== Setup complete ==="
+Write-Host ""
