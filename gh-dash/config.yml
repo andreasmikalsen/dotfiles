@@ -42,10 +42,10 @@ defaults:
   preview:
     open: false
     width: 70
-  prsLimit: 20
+  prsLimit: 10
   prApproveComment: LGTM
-  issuesLimit: 20
-  notificationsLimit: 20
+  issuesLimit: 10
+  notificationsLimit: 10
   view: prs
   layout:
     prs:
@@ -105,5 +105,5 @@ theme:
 pager:
   diff: "diffnav"
 confirmQuit: false
-showAuthorIcons: true
+showAuthorIcons: false
 smartFilteringAtLaunch: true
