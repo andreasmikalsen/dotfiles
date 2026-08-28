@@ -1,71 +1,60 @@
-return {
-	{
-		"neovim/nvim-lspconfig",
-		lazy = false,
+local lsp = require("lsp.servers")
 
-		dependencies = {
-			{
-				"mason-org/mason.nvim",
-				opts = {
-					ui = {
-						width = 1.0,
-						height = 1.0,
-						icons = {
-							package_installed = "[✔]",
-							package_pending = "[…]",
-							package_uninstalled = "[⨯]",
-						},
-					},
+return {
+	-- Mason itself should not be lazy-loaded.
+	{
+		"mason-org/mason.nvim",
+		opts = {
+			ui = {
+				width = 1.0,
+				height = 1.0,
+				icons = {
+					package_installed = "[✔]",
+					package_pending = "[…]",
+					package_uninstalled = "[⨯]",
 				},
 			},
+		},
+	},
 
+	-- Load LSP support only when opening/editing a file.
+	{
+		"neovim/nvim-lspconfig",
+		event = { "BufReadPre", "BufNewFile" },
+
+		dependencies = {
 			"hrsh7th/cmp-nvim-lsp",
 
 			{
 				"mason-org/mason-lspconfig.nvim",
 			},
-
-			{
-				"WhoIsSethDaniel/mason-tool-installer.nvim",
-			},
-
-			{
-				"j-hui/fidget.nvim",
-				opts = {},
-			},
 		},
 
 		config = function()
-			local lsp = require("lsp.servers")
 			local servers = lsp.servers
 
-			-- Add completion capabilities to every LSP.
+			-- Completion capabilities for every server.
 			vim.lsp.config("*", {
 				capabilities = require("cmp_nvim_lsp").default_capabilities(),
 			})
 
-			-- Apply custom configuration for each server.
+			-- Server-specific configuration.
 			for server_name, server_config in pairs(servers) do
 				vim.lsp.config(server_name, server_config)
 			end
 
-			-- Install and automatically enable LSP servers.
+			-- Install and enable configured servers.
 			require("mason-lspconfig").setup({
 				ensure_installed = vim.tbl_keys(servers),
 				automatic_enable = true,
 			})
 
-			-- Install non-LSP tools.
-			require("mason-tool-installer").setup({
-				ensure_installed = lsp.tools,
-			})
-
-			-- Buffer-local LSP mappings.
+			-- LSP keymaps
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-keymaps", { clear = true }),
 
 				callback = function(event)
-					local map = function(lhs, rhs, desc, mode)
+					local function map(lhs, rhs, desc, mode)
 						vim.keymap.set(mode or "n", lhs, rhs, {
 							buffer = event.buf,
 							desc = desc,
@@ -80,5 +69,26 @@ return {
 				end,
 			})
 		end,
+	},
+
+	-- Only show LSP progress when an LSP is actually active.
+	{
+		"j-hui/fidget.nvim",
+		event = "LspAttach",
+		opts = {},
+	},
+
+	-- Don't check/install formatter tools on every startup.
+	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		cmd = {
+			"MasonToolsInstall",
+			"MasonToolsUpdate",
+			"MasonToolsClean",
+		},
+
+		opts = {
+			ensure_installed = lsp.tools,
+		},
 	},
 }
