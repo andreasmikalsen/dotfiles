@@ -219,7 +219,6 @@ Write-Host ""
 
 # Core tools
 Ensure-WingetPackage "Neovim.Neovim" "Neovim"
-#Ensure-WingetPackage "zig.zig" "Zig"
 Ensure-WingetPackage "Nushell.Nushell" "Nushell" @("--scope", "machine")
 Ensure-WingetPackage "Starship.Starship" "Starship"
 Ensure-WingetPackage "GitHub.cli" "GitHub CLI"

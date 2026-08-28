@@ -2,7 +2,12 @@ return {
 	-- File explorer
 	{
 		"nvim-tree/nvim-tree.lua",
-		lazy = false,
+		lazy = true,
+		cmd = {
+			"NvimTreeToggle",
+			"NvimTreeOpen",
+			"NvimTreeFindFile",
+		},
 		keys = {
 			{
 				"<leader>e",

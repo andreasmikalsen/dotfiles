@@ -2,7 +2,8 @@ return {
 	-- Telescope
 	{
 		"nvim-telescope/telescope.nvim",
-		lazy = false,
+		lazy = true,
+		event = "VeryLazy",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-telescope/telescope-ui-select.nvim",
