@@ -1,0 +1,14 @@
+{
+  name: "Search users"
+  method: "GET"
+  path: "/{{api_version}}/users"
+  auth: null
+  query: {
+    q: "alice"
+    limit: 10
+    tenant: "{{tenant}}"
+  }
+  headers: {
+    Accept: "application/json"
+  }
+}

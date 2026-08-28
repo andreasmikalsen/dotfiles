@@ -1,0 +1,10 @@
+{
+  name: "Patch user"
+  method: "PATCH"
+  path: "/{{api_version}}/users/{{user_id}}"
+  auth: "oauth"
+  content_type: "application/json"
+  body: {
+    active: false
+  }
+}

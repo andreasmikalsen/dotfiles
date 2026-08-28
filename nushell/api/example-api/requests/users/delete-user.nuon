@@ -1,0 +1,9 @@
+{
+  name: "Delete user"
+  method: "DELETE"
+  path: "/{{api_version}}/users/{{user_id}}"
+  auth: "oauth"
+  headers: {
+    Accept: "application/json"
+  }
+}

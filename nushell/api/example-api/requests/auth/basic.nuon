@@ -1,0 +1,9 @@
+{
+  name: "Basic auth example"
+  method: "GET"
+  path: "/{{api_version}}/profile/basic"
+  auth: "basic"
+  headers: {
+    Accept: "application/json"
+  }
+}

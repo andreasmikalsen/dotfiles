@@ -1,0 +1,7 @@
+{
+  base_url: "http://localhost:8080"
+  token_url: "http://localhost:8080/oauth/token"
+  oauth_audience: "example-api"
+  user_id: "42"
+  tenant: "local"
+}

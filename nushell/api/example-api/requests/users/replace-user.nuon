@@ -1,0 +1,12 @@
+{
+  name: "Replace user"
+  method: "PUT"
+  path: "/{{api_version}}/users/{{user_id}}"
+  auth: "oauth"
+  content_type: "application/json"
+  body: {
+    name: "Ada Lovelace"
+    email: "ada.updated@example.invalid"
+    active: true
+  }
+}

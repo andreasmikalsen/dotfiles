@@ -459,6 +459,37 @@ $env:DOTFILES = $repoRoot
     "User"
 )
 
+# ============================================================
+# Setup nu-api
+# ============================================================
+
+$apiHome = Join-Path $env:LOCALAPPDATA "nu-api"
+
+$env:NU_API_HOME = $apiHome
+
+[Environment]::SetEnvironmentVariable(
+    "NU_API_HOME",
+    $apiHome,
+    "User"
+)
+
+New-Item `
+    -ItemType Directory `
+    -Force `
+    -Path $apiHome |
+    Out-Null
+
+New-Item `
+    -ItemType Directory `
+    -Force `
+    -Path (Join-Path $apiHome "collections") |
+    Out-Null
+
+New-Item `
+    -ItemType Directory `
+    -Force `
+    -Path (Join-Path $apiHome "state\tokens") |
+    Out-Null
 
 # ============================================================
 # Install dependencies

@@ -1,0 +1,58 @@
+{
+  name: "example-api"
+  default_environment: "local"
+
+  variables: {
+    api_version: "v1"
+    default_user_id: "42"
+  }
+
+  auth: {
+    basic: {
+      type: "basic"
+      username: {
+        secret: {
+          provider: "env"
+          key: "NU_API_EXAMPLE_BASIC_USER"
+        }
+      }
+      password: {
+        secret: {
+          provider: "prompt"
+          label: "Basic auth password"
+        }
+      }
+    }
+
+    bearer: {
+      type: "bearer"
+      token: {
+        secret: {
+          provider: "env"
+          key: "NU_API_EXAMPLE_BEARER_TOKEN"
+        }
+      }
+    }
+
+    oauth: {
+      type: "oauth2_client_credentials"
+      token_url: "{{token_url}}"
+      client_id: {
+        secret: {
+          provider: "env"
+          key: "NU_API_EXAMPLE_CLIENT_ID"
+        }
+      }
+      client_secret: {
+        secret: {
+          provider: "prompt"
+          label: "OAuth client secret"
+        }
+      }
+      scope: "users.read users.write"
+      extra: {
+        audience: "{{oauth_audience}}"
+      }
+    }
+  }
+}
