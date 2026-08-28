@@ -79,16 +79,22 @@ return {
 	},
 
 	-- Don't check/install formatter tools on every startup.
+	--
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
+
 		cmd = {
 			"MasonToolsInstall",
+			"MasonToolsInstallSync",
 			"MasonToolsUpdate",
+			"MasonToolsUpdateSync",
 			"MasonToolsClean",
 		},
 
 		opts = {
-			ensure_installed = lsp.tools,
+			ensure_installed = vim.list_extend(vim.tbl_keys(lsp.servers), lsp.tools),
+
+			run_on_start = false,
 		},
 	},
 }
