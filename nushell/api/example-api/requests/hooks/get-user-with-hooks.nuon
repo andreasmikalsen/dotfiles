@@ -1,0 +1,13 @@
+{
+  name: "Get user with pre/post hooks"
+  method: "GET"
+  path: "/{{api_version}}/users/{{user_id}}"
+  auth: "oauth"
+  headers: {
+    Accept: "application/json"
+  }
+  hooks: {
+    pre: "pre-add-request-id.nu"
+    post: "post-extract-user.nu"
+  }
+}

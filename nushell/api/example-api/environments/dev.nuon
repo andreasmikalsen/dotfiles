@@ -1,0 +1,7 @@
+{
+  base_url: "https://dev-api.example.invalid"
+  token_url: "https://auth.example.invalid/oauth/token"
+  oauth_audience: "example-api-dev"
+  user_id: "1001"
+  tenant: "dev"
+}

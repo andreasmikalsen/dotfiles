@@ -1,0 +1,13 @@
+{
+  name: "Get user"
+  method: "GET"
+  path: "/{{api_version}}/users/{{user_id}}"
+  auth: "oauth"
+  query: {
+    include_permissions: true
+  }
+  headers: {
+    Accept: "application/json"
+    X-Tenant: "{{tenant}}"
+  }
+}

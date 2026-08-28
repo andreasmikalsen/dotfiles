@@ -10,9 +10,10 @@
 
 ## TODOs
 
-- [WezTerm](https://wezterm.org/) (branch)
-- [zellij](https://zellij.dev/) (branch)
 - [lazygit](https://github.com/jesseduffield/lazygit)
+- kulala.nvim
+- neotest
+- overseer.nvim
 
 fzf
 fd

@@ -1,0 +1,9 @@
+{
+  name: "Health check"
+  method: "GET"
+  path: "/health"
+  auth: null
+  headers: {
+    Accept: "application/json"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  name: "Bearer auth example"
+  method: "GET"
+  path: "/{{api_version}}/profile/bearer"
+  auth: "bearer"
+  headers: {
+    Accept: "application/json"
+  }
+}
