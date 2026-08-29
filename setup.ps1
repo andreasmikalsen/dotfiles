@@ -508,6 +508,12 @@ Ensure-WingetPackage "GitHub.cli" "GitHub CLI"
 Ensure-WingetPackage "dandavison.delta" "Delta"
 Ensure-WingetPackage "wez.wezterm" "WezTerm"
 Ensure-WingetPackage "GoLang.Go" "Go"
+Ensure-WingetPackage "JesseDuffield.lazygit" "Lazygit"
+Ensure-WingetPackage "BurntSushi.ripgrep.MSVC" "ripgrep"
+Ensure-WingetPackage "sharkdp.fd" "fd"
+Ensure-WingetPackage "junegunn.fzf" "fzf"
+Ensure-WingetPackage "ajeetdsouza.zoxide" "zoxide"
+Ensure-WingetPackage "eza-community.eza" "eza"
 
 Refresh-Path
 
@@ -567,7 +573,22 @@ Write-Host ""
 Write-Host "=== Initializing Neovim ==="
 Write-Host ""
 
-Initialize-Neovim
+$title = "Initialize Neovim"
+$message = "Do you want to initialize Neovim?"
+
+$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Initialize Neovim"
+$no  = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Skip Neovim initialization"
+
+$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
+
+$result = $Host.UI.PromptForChoice($title, $message, $options, 1)
+
+if ($result -eq 0) {
+    Initialize-Neovim
+}
+else {
+    Write-Host "Skipping Neovim initialization."
+}
 
 Write-Host ""
 Write-Host "=== Setup complete ==="
