@@ -29,6 +29,26 @@ return {
 					},
 				},
 
+				formatting = {
+					format = function(entry, item)
+						if entry.source.name == "nvim_lsp" then
+							local completion = entry.completion_item
+
+							if completion.detail then
+								item.menu = completion.detail
+							elseif completion.labelDetails and completion.labelDetails.description then
+								item.menu = completion.labelDetails.description
+							else
+								item.menu = "[LSP]"
+							end
+						else
+							item.menu = "[" .. entry.source.name .. "]"
+						end
+
+						return item
+					end,
+				},
+
 				mapping = {
 					["<CR>"] = cmp.mapping.confirm({ select = false }),
 					["<C-n>"] = cmp.mapping.select_next_item(),

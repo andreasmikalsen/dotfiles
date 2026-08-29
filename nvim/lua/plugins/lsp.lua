@@ -61,6 +61,22 @@ return {
 						})
 					end
 
+					-- IntelliJ-style navigation
+					map("<C-b>", vim.lsp.buf.definition, "Go to declaration")
+					map("<C-S-b>", vim.lsp.buf.type_definition, "Go to type declaration")
+
+					map("<C-M-b>", function()
+						vim.cmd("Trouble lsp_implementations")
+					end, "Go to implementations")
+
+					map("<M-F7>", function()
+						vim.cmd("Trouble lsp_references")
+					end, "Find usages")
+
+					-- IntelliJ-style refactoring/actions
+					map("<S-F6>", vim.lsp.buf.rename, "Rename")
+
+					-- LSP shortcuts
 					map("gs", vim.lsp.buf.signature_help, "Signature help")
 					map("<leader>grn", vim.lsp.buf.rename, "Rename")
 					map("<leader>ca", vim.lsp.buf.code_action, "Code action")
