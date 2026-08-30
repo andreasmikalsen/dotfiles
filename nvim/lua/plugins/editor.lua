@@ -152,14 +152,25 @@ return {
 			notify_on_error = false,
 
 			format_on_save = function(bufnr)
+				local filetype = vim.bo[bufnr].filetype
+
+				if filetype == "kotlin" then
+					return {
+						timeout_ms = 3000,
+						lsp_format = "fallback",
+					}
+				end
+
 				local enabled_filetypes = {
 					lua = true,
 					javascript = true,
 					typescript = true,
 				}
 
-				if enabled_filetypes[vim.bo[bufnr].filetype] then
-					return { timeout_ms = 500 }
+				if enabled_filetypes[filetype] then
+					return {
+						timeout_ms = 500,
+					}
 				end
 			end,
 
@@ -169,6 +180,9 @@ return {
 
 			formatters_by_ft = {
 				lua = { "stylua" },
+				kotlin = {
+					lsp_format = "fallback",
+				},
 			},
 		},
 	},

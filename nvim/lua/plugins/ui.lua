@@ -1,19 +1,68 @@
 return {
 	-- Colorscheme
 	{
-		"folke/tokyonight.nvim",
+		"Mofiqul/vscode.nvim",
 		lazy = false,
 		priority = 1000,
+
 		opts = {
-			styles = {
-				comments = { italic = false },
+			transparent = false,
+			italic_comments = false,
+			disable_nvimtree_bg = false,
+			terminal_colors = true,
+			color_overrides = {
+				vscBack = "#1a1b26",
+			},
+
+			group_overrides = {
+				Normal = {
+					bg = "#1a1b26",
+				},
+
+				NormalNC = {
+					bg = "#191a24",
+				},
+
+				NvimTreeNormal = {
+					bg = "#16161e",
+				},
+
+				NvimTreeNormalNC = {
+					bg = "#16161e",
+				},
+
+				NvimTreeEndOfBuffer = {
+					fg = "#16161e",
+					bg = "#16161e",
+				},
+
+				WinSeparator = {
+					fg = "#292e42",
+					bg = "#1a1b26",
+				},
 			},
 		},
+
 		config = function(_, opts)
-			require("tokyonight").setup(opts)
-			vim.cmd.colorscheme("tokyonight-night")
+			require("vscode").setup(opts)
+			vim.o.background = "dark"
+			vim.cmd.colorscheme("vscode")
 		end,
 	},
+	--	{
+	--		"folke/tokyonight.nvim",
+	--		lazy = false,
+	--		priority = 1000,
+	--		opts = {
+	--			styles = {
+	--				comments = { italic = false },
+	--			},
+	--		},
+	--		config = function(_, opts)
+	--			require("tokyonight").setup(opts)
+	--			vim.cmd.colorscheme("tokyonight-night")
+	--		end,
+	--	},
 
 	-- Keybinding hints
 	{

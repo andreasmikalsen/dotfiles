@@ -20,7 +20,7 @@ return {
 	-- Load LSP support only when opening/editing a file.
 	{
 		"neovim/nvim-lspconfig",
-		event = { "BufReadPre", "BufNewFile" },
+		event = { "VeryLazy", "BufReadPre", "BufNewFile" },
 
 		dependencies = {
 			"hrsh7th/cmp-nvim-lsp",
@@ -49,6 +49,35 @@ return {
 				automatic_enable = true,
 			})
 
+			-- Pre-warm Kotlin LSP when Neovim starts inside a Kotlin/Gradle project.
+			vim.schedule(function()
+				local root = vim.fs.root(vim.uv.cwd(), {
+					"settings.gradle",
+					"settings.gradle.kts",
+					"build.gradle",
+					"build.gradle.kts",
+					"pom.xml",
+				})
+
+				if not root then
+					return
+				end
+
+				local config = vim.deepcopy(vim.lsp.config["kotlin_lsp"])
+
+				if not config then
+					return
+				end
+
+				config.name = "kotlin_lsp"
+				config.root_dir = root
+
+				vim.lsp.start(config, {
+					attach = false,
+					silent = true,
+				})
+			end)
+
 			-- LSP keymaps
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-keymaps", { clear = true }),
@@ -63,18 +92,27 @@ return {
 
 					-- IntelliJ-style navigation
 					map("<C-b>", vim.lsp.buf.definition, "Go to declaration")
-					map("<C-S-b>", vim.lsp.buf.type_definition, "Go to type declaration")
 
 					map("<C-M-b>", function()
 						vim.cmd("Trouble lsp_implementations")
 					end, "Go to implementations")
 
-					map("<M-F7>", function()
+					map("<C-S-b>", function()
 						vim.cmd("Trouble lsp_references")
 					end, "Find usages")
 
 					-- IntelliJ-style refactoring/actions
 					map("<S-F6>", vim.lsp.buf.rename, "Rename")
+
+					-- IntelliJ: Optimize Imports
+					map("<C-M-o>", function()
+						vim.lsp.buf.code_action({
+							apply = true,
+							context = {
+								only = { "source.organizeImports" },
+							},
+						})
+					end, "Optimize imports")
 
 					-- LSP shortcuts
 					map("gs", vim.lsp.buf.signature_help, "Signature help")
