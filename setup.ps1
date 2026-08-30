@@ -240,6 +240,55 @@ function Ensure-CargoPackage {
     Refresh-Path
 }
 
+function Ensure-Rainfrog {
+    if (Get-Command rainfrog -ErrorAction SilentlyContinue) {
+        return
+    }
+
+    $version = "0.4.5"
+
+    $url = "https://github.com/achristmascarl/rainfrog/releases/download/v$version/rainfrog-v$version-x86_64-pc-windows-msvc.tar.gz"
+
+    $tempDir = Join-Path $env:TEMP "rainfrog-install"
+    $archive = Join-Path $tempDir "rainfrog.tar.gz"
+    $cargoBin = Join-Path $env:USERPROFILE ".cargo\bin"
+
+    Write-Host "Installing Rainfrog $version..."
+
+    New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $cargoBin | Out-Null
+
+    Invoke-WebRequest `
+        -Uri $url `
+        -OutFile $archive
+
+    tar -xzf $archive -C $tempDir
+
+    $exe = Get-ChildItem `
+        -Path $tempDir `
+        -Filter "rainfrog.exe" `
+        -Recurse |
+        Select-Object -First 1
+
+    if (-not $exe) {
+        throw "rainfrog.exe was not found in the downloaded archive."
+    }
+
+    Copy-Item `
+        $exe.FullName `
+        (Join-Path $cargoBin "rainfrog.exe") `
+        -Force
+
+    Remove-Item $tempDir -Recurse -Force
+
+    Refresh-Path
+
+    if (-not (Get-Command rainfrog -ErrorAction SilentlyContinue)) {
+        throw "Rainfrog was installed but could not be found on PATH."
+    }
+
+    Write-Host "Rainfrog installed."
+}
 
 # ============================================================
 # GitHub CLI extensions
@@ -492,6 +541,17 @@ New-Item `
     Out-Null
 
 # ============================================================
+# Setup nu-db
+# ============================================================
+
+$dbHome = Join-Path $env:LOCALAPPDATA "nu-db"
+$env:NU_DB_HOME = $dbHome
+[Environment]::SetEnvironmentVariable("NU_DB_HOME", $dbHome, "User")
+
+New-Item -ItemType Directory -Force -Path $dbHome | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $dbHome "databases") | Out-Null
+
+# ============================================================
 # Install dependencies
 # ============================================================
 
@@ -524,6 +584,7 @@ Ensure-Cargo
 # Cargo tools
 Ensure-CargoPackage "tree-sitter-cli" "tree-sitter"
 Ensure-CargoPackage "gh-review" "gh-review"
+Ensure-Rainfrog
 
 # GitHub
 Ensure-GhExtension "dlvhdr/gh-dash"

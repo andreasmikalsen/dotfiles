@@ -1,0 +1,10 @@
+{
+  host: "cache-prod.example.internal"
+  port: 6380
+  database: 0
+  tls: true
+  auth: {
+    type: "env"
+    key: "REDIS_PROD_PASSWORD"
+  }
+}

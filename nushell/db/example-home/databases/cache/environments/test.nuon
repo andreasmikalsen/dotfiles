@@ -1,0 +1,10 @@
+{
+  host: "cache-test.example.internal"
+  port: 6380
+  database: 0
+  tls: true
+  auth: {
+    type: "prompt"
+    label: "Redis test password"
+  }
+}

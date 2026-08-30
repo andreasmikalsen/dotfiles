@@ -1,0 +1,12 @@
+{
+  host: "orders-prod.example.postgres.database.azure.com"
+  port: 5432
+  database: "orders"
+  username: "you@company.example"
+  sslmode: "require"
+  auth: {
+    type: "azure"
+    subscription: "YOUR-PROD-SUBSCRIPTION"
+    resource_type: "oss-rdbms"
+  }
+}
