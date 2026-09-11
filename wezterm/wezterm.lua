@@ -1,4 +1,4 @@
-local wezterm = require 'wezterm'
+local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 local act = wezterm.action
 
@@ -9,41 +9,51 @@ local act = wezterm.action
 -- Move through panes first, then continue through tabs when reaching the edge.
 -- Preserve pane zoom state while navigating.
 local function ActivateThing(direction)
-  local function callback(window, pane)
-    local tab = window:active_tab()
-    local panes = tab:panes_with_info()
+	local function callback(window, pane)
+		local tab = window:active_tab()
+		local panes = tab:panes_with_info()
 
-    local index = 1
-    local is_zoomed = false
-    for i, p in ipairs(panes) do
-      if p.is_active then
-        index = i
-        is_zoomed = p.is_zoomed
-        break
-      end
-    end
+		local index = 1
+		local is_zoomed = false
+		for i, p in ipairs(panes) do
+			if p.is_active then
+				index = i
+				is_zoomed = p.is_zoomed
+				break
+			end
+		end
 
-    if direction == "next" then
-      if index < #panes then
-        panes[index+1].pane:activate()
-      else
-        window:perform_action(act.ActivateTabRelative(1), pane)
-      end
-    elseif direction == "prev" then
-      if index > 1 then
-        panes[index-1].pane:activate()
-      else
-        window:perform_action(act.ActivateTabRelative(-1), pane)
-      end
-    end
+		if direction == "next" then
+			if index < #panes then
+				panes[index + 1].pane:activate()
+			end
+		elseif direction == "prev" then
+			if index > 1 then
+				panes[index - 1].pane:activate()
+			end
+		end
 
-    if is_zoomed then
-      tab:set_zoomed(false)
-      tab:set_zoomed(true)
-    end
-  end
+		-- if direction == "next" then
+		--   if index < #panes then
+		--     panes[index+1].pane:activate()
+		--   else
+		--     window:perform_action(act.ActivateTabRelative(1), pane)
+		--   end
+		-- elseif direction == "prev" then
+		--   if index > 1 then
+		--     panes[index-1].pane:activate()
+		--   else
+		--     window:perform_action(act.ActivateTabRelative(-1), pane)
+		--   end
+		-- end
 
-  return wezterm.action_callback(callback)
+		if is_zoomed then
+			tab:set_zoomed(false)
+			tab:set_zoomed(true)
+		end
+	end
+
+	return wezterm.action_callback(callback)
 end
 
 -- =============================================================================
@@ -51,35 +61,31 @@ end
 -- =============================================================================
 
 -- Show the currently active key table in the right side of the tab bar.
-wezterm.on('update-status', function(window, pane)
-  local mode = window:active_key_table()
+wezterm.on("update-status", function(window, pane)
+	local mode = window:active_key_table()
 
-  if mode == 'resize_mode' then
-    window:set_right_status(
-      wezterm.format {
-        { Foreground = { Color = '#1e1e2e' } },
-        { Background = { Color = '#f9e2af' } },
-        { Text = '  RESIZE  ' },
-      }
-    )
-  elseif mode == 'pane_mode' then
-    window:set_right_status(
-      wezterm.format {
-        { Foreground = { Color = '#1e1e2e' } },
-        { Background = { Color = '#89b4fa' } },
-        { Text = '  PANE  ' },
-      }
-    )
-  else
-    window:set_right_status('')
-  end
+	if mode == "resize_mode" then
+		window:set_right_status(wezterm.format({
+			{ Foreground = { Color = "#1e1e2e" } },
+			{ Background = { Color = "#f9e2af" } },
+			{ Text = "  RESIZE  " },
+		}))
+	elseif mode == "pane_mode" then
+		window:set_right_status(wezterm.format({
+			{ Foreground = { Color = "#1e1e2e" } },
+			{ Background = { Color = "#89b4fa" } },
+			{ Text = "  PANE  " },
+		}))
+	else
+		window:set_right_status("")
+	end
 end)
 
 -- =============================================================================
 -- General
 -- =============================================================================
 
-config.default_prog = { 'nu' }
+config.default_prog = { "nu" }
 
 config.initial_cols = 120
 config.initial_rows = 28
@@ -94,20 +100,20 @@ config.status_update_interval = 500
 -- =============================================================================
 
 config.font_size = 12.0
-config.font = wezterm.font('FiraCode Nerd Font')
+config.font = wezterm.font("FiraCode Nerd Font")
 
 -- =============================================================================
 -- Window
 -- =============================================================================
 
-config.window_decorations = 'TITLE | RESIZE'
+config.window_decorations = "TITLE | RESIZE"
 config.window_background_opacity = 1.00
 
 config.window_padding = {
-  left = '5px',
-  right = '5px',
-  top = '5px',
-  bottom = 0,
+	left = "5px",
+	right = "5px",
+	top = "5px",
+	bottom = 0,
 }
 
 -- =============================================================================
@@ -127,126 +133,126 @@ config.tab_max_width = 32
 -- Appearance
 -- =============================================================================
 
-config.color_scheme = 'Catppuccin Mocha'
+config.color_scheme = "Catppuccin Mocha"
 
 config.inactive_pane_hsb = {
-  hue = 1.0,
-  saturation = 1.0,
-  brightness = 0.4,
+	hue = 1.0,
+	saturation = 1.0,
+	brightness = 0.4,
 }
 
 config.foreground_text_hsb = {
-  hue = 1.0,
-  saturation = 1.0,
-  brightness = 1.0,
+	hue = 1.0,
+	saturation = 1.0,
+	brightness = 1.0,
 }
 
 -- Custom tab bar colors.
-local background_color = '#000000' -- Same background as Neovim
-local active_fg = '#9f7e20'
-local hover_fg = '#93a1a1'
-local inactive_fg = '#363a41'
+local background_color = "#000000" -- Same background as Neovim
+local active_fg = "#9f7e20"
+local hover_fg = "#93a1a1"
+local inactive_fg = "#363a41"
 
 local colors = {
-  background = background_color,
+	background = background_color,
 
-  tab_bar = {
-    background = background_color,
+	tab_bar = {
+		background = background_color,
 
-    active_tab = {
-      bg_color = background_color,
-      fg_color = active_fg,
-      intensity = 'Bold',
-    },
+		active_tab = {
+			bg_color = background_color,
+			fg_color = active_fg,
+			intensity = "Bold",
+		},
 
-    inactive_tab = {
-      bg_color = background_color,
-      fg_color = inactive_fg,
-    },
+		inactive_tab = {
+			bg_color = background_color,
+			fg_color = inactive_fg,
+		},
 
-    inactive_tab_hover = {
-      bg_color = background_color,
-      fg_color = hover_fg,
-    },
+		inactive_tab_hover = {
+			bg_color = background_color,
+			fg_color = hover_fg,
+		},
 
-    new_tab = {
-      bg_color = background_color,
-      fg_color = inactive_fg,
-    },
+		new_tab = {
+			bg_color = background_color,
+			fg_color = inactive_fg,
+		},
 
-    new_tab_hover = {
-      bg_color = background_color,
-      fg_color = hover_fg,
-      italic = true,
-    },
-  },
+		new_tab_hover = {
+			bg_color = background_color,
+			fg_color = hover_fg,
+			italic = true,
+		},
+	},
 
-  visual_bell = '#022020',
+	visual_bell = "#022020",
 }
 
 -- =============================================================================
 -- Bell and cursor
 -- =============================================================================
 
-config.audible_bell = 'Disabled'
+config.audible_bell = "Disabled"
 
 config.visual_bell = {
-  fade_in_duration_ms = 75,
-  fade_out_duration_ms = 75,
-  target = 'CursorColor',
+	fade_in_duration_ms = 75,
+	fade_out_duration_ms = 75,
+	target = "CursorColor",
 }
 
 config.animation_fps = 24
-config.cursor_blink_ease_in = 'Linear'
-config.cursor_blink_ease_out = 'Linear'
+config.cursor_blink_ease_in = "Linear"
+config.cursor_blink_ease_out = "Linear"
 
 -- =============================================================================
 -- Key bindings
 -- =============================================================================
 
-local MOD_KEY = 'ALT'
+local MOD_KEY = "ALT"
 
 local keys = {
-  -- Window
-  {
-    key = 'q',
-    mods = MOD_KEY,
-    action = act.ToggleFullScreen,
-  },
+	-- Window
+	{
+		key = "q",
+		mods = MOD_KEY,
+		action = act.ToggleFullScreen,
+	},
 
-  -- Key tables
-  {
-    key = 'w',
-    mods = MOD_KEY,
-    action = act.ActivateKeyTable {
-      name = 'pane_mode',
-      one_shot = true,
-      prevent_fallback = true,
-    },
-  },
-  {
-    key = 'r',
-    mods = MOD_KEY,
-    action = act.ActivateKeyTable {
-      name = 'resize_mode',
-      one_shot = false,
-      prevent_fallback = true,
-    },
-  },
+	-- Key tables
+	{
+		key = "w",
+		mods = MOD_KEY,
+		action = act.ActivateKeyTable({
+			name = "pane_mode",
+			one_shot = true,
+			prevent_fallback = true,
+		}),
+	},
+	{
+		key = "r",
+		mods = MOD_KEY,
+		action = act.ActivateKeyTable({
+			name = "resize_mode",
+			one_shot = false,
+			prevent_fallback = true,
+		}),
+	},
 
-  -- Pane / tab navigation
-  { key = 'j', mods = MOD_KEY, action = ActivateThing('next') },
-  { key = 'k', mods = MOD_KEY, action = ActivateThing('prev') },
-  { key = 'l', mods = MOD_KEY, action = act.ActivateTabRelative(1) },
-  { key = 'h', mods = MOD_KEY, action = act.ActivateTabRelative(-1) },
+	-- Pane / tab navigation
+	{ key = "j", mods = MOD_KEY, action = ActivateThing("next") },
+	{ key = "k", mods = MOD_KEY, action = ActivateThing("prev") },
+	{ key = "l", mods = MOD_KEY, action = act.ActivateTabRelative(1) },
+	{ key = "h", mods = MOD_KEY, action = act.ActivateTabRelative(-1) },
 
-  -- Pane
-  { key = 'f', mods = MOD_KEY, action = act.TogglePaneZoomState },
+	-- Pane
+	{ key = "f", mods = MOD_KEY, action = act.TogglePaneZoomState },
 
-  -- Tabs
-  { key = 'x', mods = MOD_KEY, action = act.ShowTabNavigator },
-  { key = 'j', mods = MOD_KEY .. '|CTRL', action = act.MoveTabRelative(1) },
-  { key = 'k', mods = MOD_KEY .. '|CTRL', action = act.MoveTabRelative(-1) },
+	-- Tabs
+	{ key = "x", mods = MOD_KEY, action = act.ShowTabNavigator },
+	{ key = "j", mods = MOD_KEY .. "|CTRL", action = act.MoveTabRelative(1) },
+	{ key = "k", mods = MOD_KEY .. "|CTRL", action = act.MoveTabRelative(-1) },
 }
 
 -- =============================================================================
@@ -254,12 +260,12 @@ local keys = {
 -- =============================================================================
 
 local mouse_bindings = {
-  -- Ctrl-click opens the link under the mouse cursor.
-  {
-    event = { Up = { streak = 1, button = 'Left' } },
-    mods = 'CTRL',
-    action = act.OpenLinkAtMouseCursor,
-  },
+	-- Ctrl-click opens the link under the mouse cursor.
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "CTRL",
+		action = act.OpenLinkAtMouseCursor,
+	},
 }
 
 -- =============================================================================
@@ -267,78 +273,78 @@ local mouse_bindings = {
 -- =============================================================================
 
 local key_tables = {
-  -- ---------------------------------------------------------------------------
-  -- Pane mode
-  -- ---------------------------------------------------------------------------
+	-- ---------------------------------------------------------------------------
+	-- Pane mode
+	-- ---------------------------------------------------------------------------
 
-  pane_mode = {
-    -- Exit mode
-    { key = 'Escape', action = 'PopKeyTable' },
-    { key = 'Enter', action = 'PopKeyTable' },
+	pane_mode = {
+		-- Exit mode
+		{ key = "Escape", action = "PopKeyTable" },
+		{ key = "Enter", action = "PopKeyTable" },
 
-    -- Navigate panes
-    { key = 'h', action = act.ActivatePaneDirection 'Left' },
-    { key = 'j', action = act.ActivatePaneDirection 'Down' },
-    { key = 'k', action = act.ActivatePaneDirection 'Up' },
-    { key = 'l', action = act.ActivatePaneDirection 'Right' },
+		-- Navigate panes
+		{ key = "h", action = act.ActivatePaneDirection("Left") },
+		{ key = "j", action = act.ActivatePaneDirection("Down") },
+		{ key = "k", action = act.ActivatePaneDirection("Up") },
+		{ key = "l", action = act.ActivatePaneDirection("Right") },
 
-    { key = 'LeftArrow', action = act.ActivatePaneDirection 'Left' },
-    { key = 'DownArrow', action = act.ActivatePaneDirection 'Down' },
-    { key = 'UpArrow', action = act.ActivatePaneDirection 'Up' },
-    { key = 'RightArrow', action = act.ActivatePaneDirection 'Right' },
+		{ key = "LeftArrow", action = act.ActivatePaneDirection("Left") },
+		{ key = "DownArrow", action = act.ActivatePaneDirection("Down") },
+		{ key = "UpArrow", action = act.ActivatePaneDirection("Up") },
+		{ key = "RightArrow", action = act.ActivatePaneDirection("Right") },
 
-    -- Enter resize mode
-    {
-      key = 'r',
-      action = act.ActivateKeyTable {
-        name = 'resize_mode',
-        one_shot = false,
-        prevent_fallback = true,
-      },
-    },
+		-- Enter resize mode
+		{
+			key = "r",
+			action = act.ActivateKeyTable({
+				name = "resize_mode",
+				one_shot = false,
+				prevent_fallback = true,
+			}),
+		},
 
-    -- Pane
-    { key = 'f', action = act.TogglePaneZoomState },
-    { key = 'x', action = act.CloseCurrentPane { confirm = true } },
+		-- Pane
+		{ key = "f", action = act.TogglePaneZoomState },
+		{ key = "x", action = act.CloseCurrentPane({ confirm = true }) },
 
-    -- Font size
-    { key = '+', action = act.IncreaseFontSize },
-    { key = '-', action = act.DecreaseFontSize },
+		-- Font size
+		{ key = "+", action = act.IncreaseFontSize },
+		{ key = "-", action = act.DecreaseFontSize },
 
-    -- Tabs
-    { key = 't', action = act.SpawnTab 'CurrentPaneDomain' },
-    { key = 'n', action = act.ActivateTabRelative(1) },
-    { key = 'p', action = act.ActivateTabRelative(-1) },
+		-- Tabs
+		{ key = "t", action = act.SpawnTab("CurrentPaneDomain") },
+		{ key = "n", action = act.ActivateTabRelative(1) },
+		{ key = "p", action = act.ActivateTabRelative(-1) },
 
-    -- Splits
-    { key = 's', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
-    { key = 'v', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-  },
+		-- Splits
+		{ key = "s", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+		{ key = "v", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	},
 
-  -- ---------------------------------------------------------------------------
-  -- Resize mode
-  -- ---------------------------------------------------------------------------
+	-- ---------------------------------------------------------------------------
+	-- Resize mode
+	-- ---------------------------------------------------------------------------
 
-  resize_mode = {
-    -- Exit mode
-    { key = 'Escape', action = 'PopKeyTable' },
-    { key = 'Enter', action = 'PopKeyTable' },
+	resize_mode = {
+		-- Exit mode
+		{ key = "Escape", action = "PopKeyTable" },
+		{ key = "Enter", action = "PopKeyTable" },
 
-    -- Resize panes
-    { key = 'h', action = act.AdjustPaneSize { 'Left', 1 } },
-    { key = 'j', action = act.AdjustPaneSize { 'Down', 1 } },
-    { key = 'k', action = act.AdjustPaneSize { 'Up', 1 } },
-    { key = 'l', action = act.AdjustPaneSize { 'Right', 1 } },
+		-- Resize panes
+		{ key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
+		{ key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
+		{ key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
+		{ key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
 
-    { key = 'LeftArrow', action = act.AdjustPaneSize { 'Left', 1 } },
-    { key = 'DownArrow', action = act.AdjustPaneSize { 'Down', 1 } },
-    { key = 'UpArrow', action = act.AdjustPaneSize { 'Up', 1 } },
-    { key = 'RightArrow', action = act.AdjustPaneSize { 'Right', 1 } },
+		{ key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
+		{ key = "DownArrow", action = act.AdjustPaneSize({ "Down", 1 }) },
+		{ key = "UpArrow", action = act.AdjustPaneSize({ "Up", 1 }) },
+		{ key = "RightArrow", action = act.AdjustPaneSize({ "Right", 1 }) },
 
-    -- Move panes
-    { key = 'h', mods = 'CTRL', action = act.RotatePanes 'CounterClockwise' },
-    { key = 'l', mods = 'CTRL', action = act.RotatePanes 'Clockwise' },
-  },
+		-- Move panes
+		{ key = "h", mods = "CTRL", action = act.RotatePanes("CounterClockwise") },
+		{ key = "l", mods = "CTRL", action = act.RotatePanes("Clockwise") },
+	},
 }
 
 -- =============================================================================
