@@ -286,7 +286,13 @@ export def "api auth status" [] {
     $"(selected-collection)--(selected-environment)--*.token"
   )
 
-  glob ($root | path join $pattern)
+  let pattern = (
+    $"($root)/**/*.nuon"
+    | str replace --all '\' '/'
+    | into glob
+  )
+
+  glob $pattern
   | each {|path|
       let token = (
         try {
@@ -318,7 +324,13 @@ export def "api auth clear" [] {
     $"(selected-collection)--(selected-environment)--*.token"
   )
 
-  glob ($root | path join $pattern)
+  let pattern = (
+    $"($root)/**/*.nuon"
+    | str replace --all '\' '/'
+    | into glob
+  )
+
+  glob $pattern
   | each {|path| rm --force $path }
 
   print "OAuth token cache cleared."

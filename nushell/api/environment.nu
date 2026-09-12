@@ -45,7 +45,13 @@ export def "api env list" [] {
     return []
   }
 
-  glob ($root | path join "*.nuon")
+  let pattern = (
+    $"($root)/**/*.nuon"
+    | str replace --all '\' '/'
+    | into glob
+  )
+
+  glob $pattern
   | each {|path|
       $path
       | path parse

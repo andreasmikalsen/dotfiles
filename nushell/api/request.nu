@@ -203,7 +203,13 @@ def perform-request [
 export def "api list" [] {
   let root = (collection-dir | path join "requests")
 
-  glob ($root | path join "**" "*.nuon")
+  let pattern = (
+    $"($root)/**/*.nuon"
+    | str replace --all '\' '/'
+    | into glob
+  )
+
+  glob $pattern
   | each {|path|
       $path
       | path relative-to $root
