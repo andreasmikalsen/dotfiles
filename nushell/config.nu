@@ -1,6 +1,7 @@
 # Import api mod
 use ($nu.default-config-dir | path join "api" "mod.nu") *
 use ($nu.default-config-dir | path join "api" "help.nu") api
+use ($nu.default-config-dir | path join "api" "import-postman.nu") *
 use ($nu.default-config-dir | path join "db" "mod.nu") *
 use ($nu.default-config-dir | path join "db" "help.nu") db
 
