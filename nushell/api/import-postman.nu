@@ -338,29 +338,63 @@ def save-post-hook [path: string, scripts: list] {
   $content | save --force $path
 }
 
-# Import a single request and return counters/warnings.
+# Build a stable collection auth name for imported Postman auth.
+def auth-name [scope: string] {
+  let clean = (slug $scope)
+  if ($clean | is-empty) { "postman-auth" } else { $"postman-($clean)" }
+}
+
+# Convert an explicit Postman auth object into a named collection auth reference.
+# noauth becomes auth:null so it can explicitly disable inherited folder auth.
+def register-auth [auth: any, scope: string] {
+  let converted = (convert-auth $auth)
+
+  if $converted.value == null {
+    {
+      reference: null
+      auths: {}
+      warning: $converted.warning
+    }
+  } else {
+    let name = (auth-name $scope)
+    {
+      reference: $name
+      auths: ({} | upsert $name $converted.value)
+      warning: $converted.warning
+    }
+  }
+}
+
+# Save folder-level nu-api metadata.
+def save-folder-config [target_dir: string, auth_registration: record] {
+  {
+    auth: $auth_registration.reference
+  }
+  | to nuon --pretty
+  | save --force ($target_dir | path join "_folder.nuon")
+}
+
+# Import a single request and return counters/warnings/auth definitions.
 def import-request [
   item: record
   target_dir: string
-  inherited_auth: any
   inherited_pre: list
   inherited_post: list
+  source_prefix: string
 ] {
   let name = ($item | get -o name | default "Unnamed request")
   let request = ($item | get request)
   let file_name = $"(slug $name).nuon"
   let request_path = ($target_dir | path join $file_name)
+  let source = if ($source_prefix | is-empty) { $name } else { $"($source_prefix)/($name)" }
 
-  let own_auth = if (has-field $request "auth") { $request.auth } else { $inherited_auth }
-  let auth_result = (convert-auth $own_auth)
   let url_result = (convert-url ($request | get -o url))
   let body_result = (convert-body ($request | get -o body))
-
   let headers = (kv-list-to-record ($request | get -o header))
   let method = ($request | get -o method | default "GET" | str uppercase)
 
-  let local_pre = (event-scripts ($item | get -o event) "prerequest" $"request: ($name)")
-  let local_post = (event-scripts ($item | get -o event) "test" $"request: ($name)")
+  let local_pre = (event-scripts ($item | get -o event) "prerequest" $"request: ($source)")
+  let local_post = (event-scripts ($item | get -o event) "test" $"request: ($source)")
   let pre_scripts = ($inherited_pre ++ $local_pre)
   let post_scripts = ($inherited_post ++ $local_post)
 
@@ -368,7 +402,21 @@ def import-request [
     name: $name
     method: $method
     url: $url_result.url
-    auth: $auth_result.value
+  }
+
+  mut auths = {}
+  mut warnings = []
+
+  # Only write auth when this request explicitly declares it.
+  # Otherwise runtime folder inheritance handles it.
+  if (has-field $request "auth") {
+    let registration = (register-auth $request.auth $"request-($source)")
+    $output = ($output | upsert auth $registration.reference)
+    $auths = ($auths | merge $registration.auths)
+
+    if $registration.warning != null {
+      $warnings = ($warnings | append $"($name): ($registration.warning)")
+    }
   }
 
   if (($url_result.query | columns | length) > 0) {
@@ -410,10 +458,6 @@ def import-request [
 
   $output | to nuon --pretty | save --force $request_path
 
-  mut warnings = []
-  if $auth_result.warning != null {
-    $warnings = ($warnings | append $"($name): ($auth_result.warning)")
-  }
   if $body_result.warning != null {
     $warnings = ($warnings | append $"($name): ($body_result.warning)")
   }
@@ -426,6 +470,7 @@ def import-request [
     folders: 0
     hooks: $hook_count
     warnings: $warnings
+    auths: $auths
   }
 }
 
@@ -436,14 +481,15 @@ def merge-stats [left: record, right: record] {
     folders: ($left.folders + $right.folders)
     hooks: ($left.hooks + $right.hooks)
     warnings: ($left.warnings ++ $right.warnings)
+    auths: ($left.auths | merge $right.auths)
   }
 }
 
 # Recursively import Postman folders and requests.
+# Folder auth is represented once as _folder.nuon rather than copied to every request.
 def import-items [
   items: any
   target_dir: string
-  inherited_auth: any
   inherited_pre: list
   inherited_post: list
   source_prefix: string
@@ -453,6 +499,7 @@ def import-items [
     folders: 0
     hooks: 0
     warnings: []
+    auths: {}
   }
 
   if $items == null {
@@ -461,23 +508,32 @@ def import-items [
 
   for item in $items {
     if (has-field $item "request") {
-      let result = (import-request $item $target_dir $inherited_auth $inherited_pre $inherited_post)
+      let result = (import-request $item $target_dir $inherited_pre $inherited_post $source_prefix)
       $stats = (merge-stats $stats $result)
     } else if (has-field $item "item") {
       let folder_name = ($item | get -o name | default "Unnamed folder")
       let folder_dir = ($target_dir | path join (slug $folder_name))
       mkdir $folder_dir
 
-      let folder_auth = if (has-field $item "auth") { $item.auth } else { $inherited_auth }
       let source = if ($source_prefix | is-empty) { $folder_name } else { $"($source_prefix)/($folder_name)" }
       let folder_pre = (event-scripts ($item | get -o event) "prerequest" $"folder: ($source)")
       let folder_post = (event-scripts ($item | get -o event) "test" $"folder: ($source)")
+
+      # Only create _folder.nuon when this Postman folder explicitly defines auth.
+      if (has-field $item "auth") {
+        let registration = (register-auth $item.auth $"folder-($source)")
+        save-folder-config $folder_dir $registration
+        $stats.auths = ($stats.auths | merge $registration.auths)
+
+        if $registration.warning != null {
+          $stats.warnings = ($stats.warnings | append $"Folder ($source): ($registration.warning)")
+        }
+      }
 
       let child = (
         import-items
           ($item | get -o item)
           $folder_dir
-          $folder_auth
           ($inherited_pre ++ $folder_pre)
           ($inherited_post ++ $folder_post)
           $source
@@ -535,30 +591,46 @@ export def "api import postman" [
   mkdir $environments_dir
 
   let variables = (variables-to-record ($collection | get -o variable))
+  let collection_pre = (event-scripts ($collection | get -o event) "prerequest" "collection")
+  let collection_post = (event-scripts ($collection | get -o event) "test" "collection")
+
+  mut root_auths = {}
+  mut root_warnings = []
+
+  # A collection-wide Postman auth becomes requests/_folder.nuon.
+  if (has-field $collection "auth") {
+    let registration = (register-auth $collection.auth "collection")
+    save-folder-config $requests_dir $registration
+    $root_auths = ($root_auths | merge $registration.auths)
+
+    if $registration.warning != null {
+      $root_warnings = ($root_warnings | append $"Collection auth: ($registration.warning)")
+    }
+  }
+
+  let stats = (
+    import-items
+      ($collection | get -o item)
+      $requests_dir
+      $collection_pre
+      $collection_post
+      ""
+  )
+
+  let auths = ($root_auths | merge $stats.auths)
+
   {
     name: $collection_name
     default_environment: "imported"
     variables: $variables
-    auth: {}
+    auth: $auths
   }
   | to nuon --pretty
   | save --force ($root | path join "collection.nuon")
 
   {} | to nuon --pretty | save --force ($environments_dir | path join "imported.nuon")
 
-  let collection_pre = (event-scripts ($collection | get -o event) "prerequest" "collection")
-  let collection_post = (event-scripts ($collection | get -o event) "test" "collection")
-  let collection_auth = ($collection | get -o auth)
-
-  let stats = (
-    import-items
-      ($collection | get -o item)
-      $requests_dir
-      $collection_auth
-      $collection_pre
-      $collection_post
-      ""
-  )
+  let warnings = ($root_warnings ++ $stats.warnings)
 
   print $"Imported Postman collection: ($collection_name)"
   print $"Location: ($root)"
@@ -568,8 +640,9 @@ export def "api import postman" [
     requests: $stats.requests
     folders: $stats.folders
     generated_hooks: $stats.hooks
-    manual_review: ($stats.warnings | length)
-    warnings: $stats.warnings
+    imported_auth_configs: ($auths | columns | length)
+    manual_review: ($warnings | length)
+    warnings: $warnings
   }
 }
 
