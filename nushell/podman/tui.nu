@@ -25,9 +25,12 @@ def container-view [] {
         $compose.service
       }
 
+      let id = (container-id $container)
+      let selector = if ($id | is-empty) { $name } else { $id }
+
       {
-        selector: $name
-        id: (container-id $container)
+        selector: $selector
+        id: $id
         name: $name
         service: $service
         image: (container-image $container)
@@ -196,7 +199,7 @@ def preview-command [] {
     | path join "podman" "preview.nu"
   )
 
-  $"\"($nu.current-exe)\" --no-config-file \"($preview_script)\" \"{1}\""
+  $"\"($nu.current-exe)\" --no-config-file \"($preview_script)\" {1}"
 }
 
 def run-tui-once [] {
