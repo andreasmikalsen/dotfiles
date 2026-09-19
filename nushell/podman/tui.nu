@@ -95,7 +95,7 @@ def tui-rows [] {
       let group_label = if $item.project == "Standalone" {
         $"Standalone  •  ($count) ($noun)"
       } else {
-        $"($item.project) (compose)  •  ($count) ($noun)"
+        $"($item.project) \(compose\)  •  ($count) ($noun)"
       }
 
       $rows = (
