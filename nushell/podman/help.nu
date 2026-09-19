@@ -3,6 +3,13 @@
 # TUI:
 #   pod tui
 #
+# TUI navigation:
+#   j / k       move down / up
+#   h / l       hide / show details pane
+#   /           enter search mode
+#   Esc         leave search mode
+#   q           quit
+#
 # Overview:
 #   pod status
 #   pod ps
@@ -26,14 +33,7 @@
 #   pod container stop <id>
 #   pod container restart <id>
 #   pod container logs <id>
-#
-# The compose commands look for:
-#   docker-compose.yml
-#   docker-compose.yaml
-#   compose.yml
-#   compose.yaml
-#
-# starting in the current directory and walking upward.
+#   pod container stats <id>
 export def pod [] {
   help pod
 }
