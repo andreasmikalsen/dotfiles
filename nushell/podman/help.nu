@@ -29,11 +29,11 @@
 #   pod compose logs
 #
 # Containers:
-#   pod container start <id>
-#   pod container stop <id>
-#   pod container restart <id>
-#   pod container logs <id>
-#   pod container stats <id>
+#   pod container start <name>
+#   pod container stop <name>
+#   pod container restart <name>
+#   pod container logs <name>
+#   pod container stats <name>
 export def pod [] {
   help pod
 }

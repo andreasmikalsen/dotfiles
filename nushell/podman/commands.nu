@@ -21,13 +21,21 @@ export def "pod machine status" [] {
 
 export def "pod machine start" [] {
   require-command podman
-  if (machine-running) { return }
+
+  if (machine-running) {
+    return
+  }
+
   ^podman machine start --quiet
 }
 
 export def "pod machine stop" [] {
   require-command podman
-  if not (machine-running) { return }
+
+  if not (machine-running) {
+    return
+  }
+
   ^podman machine stop
 }
 
@@ -40,21 +48,22 @@ export def "pod ps" [] {
   containers
   | each {|container|
       let compose = (compose-meta $container)
+
       {
-        id: ($container | get -o ID)
+        id: (container-id $container)
         project: $compose.project
         service: $compose.service
-        name: ($container | get -o Names)
-        image: ($container | get -o Image)
-        state: ($container | get -o State)
-        status: ($container | get -o Status)
-        ports: ($container | get -o Ports)
+        name: (container-name $container)
+        image: (container-image $container)
+        state: (container-state $container)
+        status: (container-status $container)
       }
     }
 }
 
 export def "pod status" [] {
   let file = (compose-file)
+
   {
     machine: (machine-state)
     compose_file: $file
@@ -63,12 +72,18 @@ export def "pod status" [] {
   }
 }
 
-export def "pod compose up" [--build] {
+export def "pod compose up" [
+  --build
+] {
   require-command podman
   let file = (require-compose-file)
+
   if not (machine-running) {
-    error make { msg: "Podman machine is not running. Run: pod machine start" }
+    error make {
+      msg: "Podman machine is not running. Run: pod machine start"
+    }
   }
+
   if $build {
     ^podman compose -f $file up -d --build
   } else {
@@ -79,64 +94,92 @@ export def "pod compose up" [--build] {
 export def "pod compose down" [] {
   require-command podman
   let file = (require-compose-file)
-  if not (machine-running) { return }
+
+  if not (machine-running) {
+    return
+  }
+
   ^podman compose -f $file down
 }
 
 export def "pod compose restart" [] {
   require-command podman
   let file = (require-compose-file)
+
   if not (machine-running) {
-    error make { msg: "Podman machine is not running. Run: pod machine start" }
+    error make {
+      msg: "Podman machine is not running. Run: pod machine start"
+    }
   }
+
   ^podman compose -f $file restart
 }
 
 export def "pod compose ps" [] {
   require-command podman
   let file = (require-compose-file)
-  if not (machine-running) { return }
+
+  if not (machine-running) {
+    return
+  }
+
   ^podman compose -f $file ps
 }
 
-export def "pod compose logs" [--tail: int = 100] {
+export def "pod compose logs" [
+  --tail: int = 100
+] {
   require-command podman
   let file = (require-compose-file)
+
   if not (machine-running) {
-    error make { msg: "Podman machine is not running. Run: pod machine start" }
+    error make {
+      msg: "Podman machine is not running. Run: pod machine start"
+    }
   }
+
   ^podman compose -f $file logs --tail $tail -f
 }
 
-export def "pod container start" [id: string] {
+export def "pod container start" [container: string] {
   require-command podman
-  ^podman start $id
+  ^podman start $container
 }
 
-export def "pod container stop" [id: string] {
+export def "pod container stop" [container: string] {
   require-command podman
-  ^podman stop $id
+  ^podman stop $container
 }
 
-export def "pod container restart" [id: string] {
+export def "pod container restart" [container: string] {
   require-command podman
-  ^podman restart $id
+  ^podman restart $container
 }
 
-export def "pod container logs" [id: string, --tail: int = 100] {
+export def "pod container logs" [
+  container: string
+  --tail: int = 100
+] {
   require-command podman
-  ^podman logs --tail $tail -f $id
+  ^podman logs --tail $tail $container
 }
 
-export def "pod container stats" [id: string] {
+export def "pod container stats" [container: string] {
   require-command podman
+
   let result = (
-    ^podman stats --no-stream --format=json $id
+    ^podman stats --no-stream --format=json $container
     | complete
   )
-  if $result.exit_code != 0 { return null }
+
+  if $result.exit_code != 0 {
+    return null
+  }
+
   try {
-    $result.stdout | from json | first
+    $result.stdout
+    | from json
+    | first
   } catch {
     null
   }

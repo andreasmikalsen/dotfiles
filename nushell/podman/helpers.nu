@@ -95,8 +95,61 @@ export def containers [] {
   }
 }
 
+export def first-value [record: record, keys: list<string>] {
+  for key in $keys {
+    let value = ($record | get -o $key)
+
+    if $value != null {
+      return $value
+    }
+  }
+
+  null
+}
+
+export def container-name [container: record] {
+  let value = (first-value $container ["Names" "Name" "names" "name"])
+
+  if $value == null {
+    return ""
+  }
+
+  let kind = ($value | describe)
+
+  if ($kind | str starts-with "list") {
+    $value | first | into string | str trim --left --char "/"
+  } else {
+    $value | into string | str trim --left --char "/"
+  }
+}
+
+export def container-id [container: record] {
+  first-value $container ["ID" "Id" "id"]
+  | default ""
+  | into string
+}
+
+export def container-image [container: record] {
+  first-value $container ["Image" "image"]
+  | default ""
+  | into string
+}
+
+export def container-state [container: record] {
+  first-value $container ["State" "state"]
+  | default "unknown"
+  | into string
+  | str lowercase
+}
+
+export def container-status [container: record] {
+  first-value $container ["Status" "status"]
+  | default ""
+  | into string
+}
+
 export def label-value [container: record, key: string] {
-  let labels = ($container | get -o Labels)
+  let labels = (first-value $container ["Labels" "labels"])
 
   if $labels == null {
     return null
@@ -140,12 +193,6 @@ export def compose-meta [container: record] {
     $project
   }
 
-  let config_display = if $config_files == null {
-    if $project == null { "No Compose file" } else { "Compose" }
-  } else {
-    $config_files
-  }
-
   let group_key = if $project == null {
     "zzzz|standalone"
   } else {
@@ -157,7 +204,6 @@ export def compose-meta [container: record] {
     service: $service
     working_dir: $working_dir
     config_files: $config_files
-    config_display: $config_display
     group_key: $group_key
   }
 }
