@@ -584,6 +584,7 @@ Ensure-Cargo
 # Cargo tools
 Ensure-CargoPackage "tree-sitter-cli" "tree-sitter"
 Ensure-CargoPackage "gh-review" "gh-review"
+Ensure-CargoPackage "bottom" "bottom"
 Ensure-Rainfrog
 
 # GitHub
