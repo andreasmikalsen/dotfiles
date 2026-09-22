@@ -3,6 +3,7 @@ return {
 	{
 		"nvim-tree/nvim-tree.lua",
 		lazy = true,
+		event = "VeryLazy",
 		cmd = {
 			"NvimTreeToggle",
 			"NvimTreeOpen",
@@ -106,7 +107,8 @@ return {
 	-- Detect indentation
 	{
 		"NMAC427/guess-indent.nvim",
-		event = { "BufReadPost", "BufNewFile" },
+		lazy = true,
+		event = { "VeryLazy", "BufReadPost", "BufNewFile" },
 		keys = {
 			{
 				"<leader>fg",
@@ -130,8 +132,9 @@ return {
 	-- Formatting
 	{
 		"stevearc/conform.nvim",
-		event = "BufWritePre",
+		event = { "BufWritePre", "VeryLazy" },
 		cmd = "ConformInfo",
+		lazy = true,
 
 		keys = {
 			{
@@ -190,14 +193,16 @@ return {
 	-- Auto-close brackets, quotes, etc.
 	{
 		"windwp/nvim-autopairs",
-		event = "InsertEnter",
+		lazy = true,
+		event = { "InsertEnter", "VeryLazy" },
 		opts = {},
 	},
 
 	-- Markdown preview
 	{
 		"OXY2DEV/markview.nvim",
-		lazy = false,
+		lazy = true,
+		event = "VeryLazy",
 		opts = {},
 		keys = {
 			{
