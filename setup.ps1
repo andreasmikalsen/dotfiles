@@ -574,6 +574,29 @@ Ensure-WingetPackage "sharkdp.fd" "fd"
 Ensure-WingetPackage "junegunn.fzf" "fzf"
 Ensure-WingetPackage "ajeetdsouza.zoxide" "zoxide"
 Ensure-WingetPackage "eza-community.eza" "eza"
+Ensure-WingetPackage "sxyazi.yazi" "Yazi"
+
+# Yazi preview dependencies
+Ensure-WingetPackage "Gyan.FFmpeg" "FFmpeg"
+Ensure-WingetPackage "7zip.7zip" "7-Zip"
+Ensure-WingetPackage "jqlang.jq" "jq"
+Ensure-WingetPackage "oschwartz10612.Poppler" "Poppler"
+Ensure-WingetPackage "ImageMagick.ImageMagick" "ImageMagick"
+
+# Setup YAZI_FILE_ONE
+$gitExe = (Get-Command git -ErrorAction Stop).Source
+$gitRoot = Split-Path (Split-Path $gitExe -Parent) -Parent
+$yaziFile = Join-Path $gitRoot "usr\bin\file.exe"
+
+if (Test-Path $yaziFile) {
+    $env:YAZI_FILE_ONE = $yaziFile
+    [Environment]::SetEnvironmentVariable(
+        "YAZI_FILE_ONE",
+        $yaziFile,
+        "User"
+    )
+}
+
 
 Refresh-Path
 
@@ -608,11 +631,13 @@ $nvimSource    = Join-Path $repoRoot "nvim"
 $nuSource      = Join-Path $repoRoot "nushell"
 $ghDashSource  = Join-Path $repoRoot "gh-dash"
 $weztermSource = Join-Path $repoRoot "wezterm"
+$yaziSource    = Join-Path $repoRoot "yazi"
 
 $nvimTarget    = Join-Path $env:LOCALAPPDATA "nvim"
 $nuTarget      = Join-Path $env:APPDATA "nushell"
 $ghDashTarget  = Join-Path $env:USERPROFILE ".config\gh-dash"
 $weztermTarget = Join-Path $env:USERPROFILE ".config\wezterm"
+$yaziTarget    = Join-Path $env:APPDATA "yazi\config"
 
 Write-Host ""
 Write-Host "=== Setting up junctions ==="
@@ -622,6 +647,7 @@ Create-Junction $nvimTarget $nvimSource
 Create-Junction $nuTarget $nuSource
 Create-Junction $ghDashTarget $ghDashSource
 Create-Junction $weztermTarget $weztermSource
+Create-Junction $yaziTarget $yaziSource
 
 Write-Host ""
 Write-Host "=== Finished setting up junctions ==="
