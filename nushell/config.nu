@@ -32,3 +32,18 @@ alias l = eza --icons=auto --group-directories-first
 alias ll = eza -la --icons=auto --group-directories-first
 
 source ($nu.default-config-dir | path join "nu_scripts" "git-completion.nu")
+
+# Nushell wrapper for Yazi
+def --env y [...args] {
+  let tmp = (mktemp -t "yazi-cwd.XXXXXX")
+
+  ^yazi ...$args --cwd-file $tmp
+
+  let cwd = (open $tmp)
+
+  if $cwd != $env.PWD and ($cwd | path exists) {
+    cd $cwd
+  }
+
+  rm -fp $tmp
+}
