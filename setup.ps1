@@ -608,6 +608,7 @@ Ensure-Cargo
 Ensure-CargoPackage "tree-sitter-cli" "tree-sitter"
 Ensure-CargoPackage "gh-review" "gh-review"
 Ensure-CargoPackage "bottom" "bottom"
+Ensure-CargoPackage "tetro-tui" "tetro-tui"
 Ensure-Rainfrog
 
 # GitHub
