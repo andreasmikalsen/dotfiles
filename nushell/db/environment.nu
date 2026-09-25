@@ -13,7 +13,10 @@ export def "db list" [] {
   | each {|path| $path | path basename }
 }
 
-export def --env "db use" [name: string] {
+export def --env "db use" [
+  name: string
+  environment?: string
+] {
   let root = (db-home | path join "databases" $name)
 
   if not ($root | path exists) {
@@ -22,14 +25,19 @@ export def --env "db use" [name: string] {
 
   $env.NU_DB_DATABASE = $name
 
-  let config_path = ($root | path join "database.nuon")
-  if ($config_path | path exists) {
-    let config = (open $config_path)
-    let default_environment = ($config | get -o default_environment)
+  if $environment != null {
+    let env_path = (
+      $root
+      | path join "environments" $"($environment).nuon"
+    )
 
-    if $default_environment != null {
-      $env.NU_DB_ENV = $default_environment
+    if not ($env_path | path exists) {
+      error make {
+        msg: $"Environment '($environment)' not found for database '($name)'"
+      }
     }
+
+    $env.NU_DB_ENV = $environment
   }
 
   db status
