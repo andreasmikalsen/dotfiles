@@ -1,0 +1,6 @@
+{
+  prometheus: {
+    url: "https://prometheus.example.internal"
+    auth: null
+  }
+}

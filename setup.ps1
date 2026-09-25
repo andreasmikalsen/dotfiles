@@ -551,6 +551,17 @@ $env:NU_DB_HOME = $dbHome
 New-Item -ItemType Directory -Force -Path $dbHome | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $dbHome "databases") | Out-Null
 
+# ===========================================================
+# Setup nu-obs
+# ===========================================================
+
+$observeHome = Join-Path $env:LOCALAPPDATA "nu-observe"
+$env:NU_OBSERVE_HOME = $observeHome
+[Environment]::SetEnvironmentVariable("NU_OBSERVE_HOME", $observeHome, "User")
+New-Item -ItemType Directory -Force -Path (Join-Path $observeHome "environments") | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $observeHome "dashboards") | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $observeHome "queries") | Out-Null
+
 # ============================================================
 # Install dependencies
 # ============================================================

@@ -1,0 +1,9 @@
+{
+  prometheus: {
+    url: "https://prometheus.example.internal"
+    auth: {
+      type: "bearer_env"
+      variable: "PROMETHEUS_TOKEN"
+    }
+  }
+}

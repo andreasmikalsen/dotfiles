@@ -1,0 +1,5 @@
+export use ./help.nu [obs]
+export use ./environment.nu ["obs env list" "obs env use" "obs status"]
+export use ./prometheus.nu ["obs check prometheus" "obs query prometheus"]
+export use ./sql.nu ["obs query sql"]
+export use ./dashboard.nu ["obs dashboard"]

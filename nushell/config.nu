@@ -6,6 +6,7 @@ use ($nu.default-config-dir | path join "db" "mod.nu") *
 use ($nu.default-config-dir | path join "db" "help.nu") db
 use ($nu.default-config-dir | path join "podman" "mod.nu") *
 use ($nu.default-config-dir | path join "podman" "help.nu") pod
+use ($nu.default-config-dir | path join "observe" "mod.nu") *
 
 $env.config.buffer_editor = "nvim"
 $env.EDITOR = "nvim"
@@ -30,6 +31,7 @@ alias github = cd ~/Documents/GitHub
 alias lg = lazygit
 alias l = eza --icons=auto --group-directories-first
 alias ll = eza -la --icons=auto --group-directories-first
+alias nuobs = cd $env.NU_OBSERVE_HOME
 
 source ($nu.default-config-dir | path join "nu_scripts" "git-completion.nu")
 

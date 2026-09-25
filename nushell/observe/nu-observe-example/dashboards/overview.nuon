@@ -1,0 +1,32 @@
+{
+  name: "Service overview"
+  refresh: 10sec
+  panels: [
+    {
+      title: "Instances down"
+      source: "prometheus"
+      query: "sum(up == 0)"
+      decimals: 0
+      warning: 1
+      critical: 3
+    }
+    {
+      title: "HTTP 5xx / sec"
+      source: "prometheus"
+      query: "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m]))"
+      decimals: 2
+      warning: 1
+      critical: 5
+    }
+    {
+      title: "Pending orders"
+      source: "sql"
+      database: "orders"
+      query_file: "pending-orders.sql"
+      field: "count"
+      decimals: 0
+      warning: 10
+      critical: 50
+    }
+  ]
+}
