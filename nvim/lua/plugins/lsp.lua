@@ -90,21 +90,56 @@ return {
 						})
 					end
 
-					-- IntelliJ-style navigation
-					map("<C-b>", vim.lsp.buf.definition, "Go to declaration")
+					local builtin = require("telescope.builtin")
 
-					map("<C-M-b>", function()
-						vim.cmd("Trouble lsp_implementations")
-					end, "Go to implementations")
+					-- IntelliJ-ish navigation
+					map("<C-b>", function()
+						builtin.lsp_definitions({
+							reuse_win = true,
+						})
+					end, "Go to definition")
 
-					map("<C-S-b>", function()
-						vim.cmd("Trouble lsp_references")
+					map("<leader>li", function()
+						builtin.lsp_implementations({
+							reuse_win = true,
+						})
+					end, "Go to implementation")
+
+					map("<leader>lt", function()
+						builtin.lsp_type_definitions({
+							reuse_win = true,
+						})
+					end, "Go to type definition")
+
+					map("<leader>lr", function()
+						builtin.lsp_references({
+							include_declaration = false,
+						})
 					end, "Find usages")
 
-					-- IntelliJ-style refactoring/actions
+					map("<leader>lc", builtin.lsp_incoming_calls, "Incoming calls")
+					map("<leader>lC", builtin.lsp_outgoing_calls, "Outgoing calls")
+
+					map("<leader>ls", builtin.lsp_document_symbols, "Document symbols")
+					map("<leader>lS", builtin.lsp_dynamic_workspace_symbols, "Workspace symbols")
+
+					-- Refactoring / actions
 					map("<S-F6>", vim.lsp.buf.rename, "Rename")
 
-					-- IntelliJ: Optimize Imports
+					map("<M-CR>", vim.lsp.buf.code_action, "Code actions", {
+						"n",
+						"v",
+					})
+
+					map("<C-.>", function()
+						vim.lsp.buf.code_action({
+							apply = true,
+							context = {
+								only = { "quickfix" },
+							},
+						})
+					end, "Quick fix")
+
 					map("<C-M-o>", function()
 						vim.lsp.buf.code_action({
 							apply = true,
@@ -114,12 +149,25 @@ return {
 						})
 					end, "Optimize imports")
 
-					-- LSP shortcuts
+					-- Information
+					map("K", vim.lsp.buf.hover, "Hover")
 					map("gs", vim.lsp.buf.signature_help, "Signature help")
-					map("<leader>grn", vim.lsp.buf.rename, "Rename")
-					map("<leader>ca", vim.lsp.buf.code_action, "Code action")
-					map("<leader>k", vim.lsp.buf.hover, "Hover")
 					map("gk", vim.diagnostic.open_float, "Diagnostic")
+
+					-- Problems
+					map("<F2>", function()
+						vim.diagnostic.jump({
+							count = 1,
+							float = true,
+						})
+					end, "Next problem")
+
+					map("<S-F2>", function()
+						vim.diagnostic.jump({
+							count = -1,
+							float = true,
+						})
+					end, "Previous problem")
 				end,
 			})
 		end,
