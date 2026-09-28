@@ -1,0 +1,81 @@
+# Navigation feels like the rest of your setup.
+
+[[keymaps]]
+command = "SelectNextOrScrollDown"
+key_sequence = "j"
+
+[[keymaps]]
+command = "SelectPreviousOrScrollUp"
+key_sequence = "k"
+
+[[keymaps]]
+command = "PageSelectNextOrScrollDown"
+key_sequence = "C-d"
+
+[[keymaps]]
+command = "PageSelectPreviousOrScrollUp"
+key_sequence = "C-u"
+
+[[keymaps]]
+command = "SelectFirstOrScrollToTop"
+key_sequence = "g g"
+
+[[keymaps]]
+command = "SelectLastOrScrollToBottom"
+key_sequence = "G"
+
+# Playback
+
+[[keymaps]]
+command = "ResumePause"
+key_sequence = "space"
+
+[[keymaps]]
+command = "NextTrack"
+key_sequence = "]"
+
+[[keymaps]]
+command = "PreviousTrack"
+key_sequence = "["
+
+[[keymaps]]
+command = { SeekForward = { duration = 5 } }
+key_sequence = "l"
+
+[[keymaps]]
+command = { SeekBackward = { duration = 5 } }
+key_sequence = "h"
+
+# Search / pages
+
+[[keymaps]]
+command = "Search"
+key_sequence = "/"
+
+[[keymaps]]
+command = "LibraryPage"
+key_sequence = "g l"
+
+[[keymaps]]
+command = "LyricsPage"
+key_sequence = "g y"
+
+[[keymaps]]
+command = "Queue"
+key_sequence = "g q"
+
+[[keymaps]]
+command = "CurrentlyPlayingContextPage"
+key_sequence = "g c"
+
+[[keymaps]]
+command = "SwitchDevice"
+key_sequence = "D"
+
+[[keymaps]]
+command = "OpenCommandHelp"
+key_sequence = "?"
+
+[[keymaps]]
+command = "Quit"
+key_sequence = "q"

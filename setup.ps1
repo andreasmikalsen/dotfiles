@@ -622,6 +622,19 @@ Ensure-CargoPackage "bottom" "bottom"
 Ensure-CargoPackage "tetro-tui" "tetro-tui"
 Ensure-Rainfrog
 
+# Custom spotify player
+$spotifyPlayerDir = Join-Path $env:LOCALAPPDATA "spotify-player-custom"
+
+if (-not (Test-Path (Join-Path $spotifyPlayerDir ".git"))) {
+    gh repo clone "andreasmikalsen/spotify_player" $spotifyPlayerDir
+} else {
+    git -C $spotifyPlayerDir fetch origin
+    git -C $spotifyPlayerDir checkout custom
+    git -C $spotifyPlayerDir pull --ff-only origin custom
+}
+
+cargo install --path (Join-Path $spotifyPlayerDir "spotify_player") --locked --force
+
 # GitHub
 Ensure-GhExtension "dlvhdr/gh-dash"
 
@@ -644,12 +657,14 @@ $nuSource      = Join-Path $repoRoot "nushell"
 $ghDashSource  = Join-Path $repoRoot "gh-dash"
 $weztermSource = Join-Path $repoRoot "wezterm"
 $yaziSource    = Join-Path $repoRoot "yazi"
+$spotifySource = Join-Path $repoRoot "spotify-player"
 
 $nvimTarget    = Join-Path $env:LOCALAPPDATA "nvim"
 $nuTarget      = Join-Path $env:APPDATA "nushell"
 $ghDashTarget  = Join-Path $env:USERPROFILE ".config\gh-dash"
 $weztermTarget = Join-Path $env:USERPROFILE ".config\wezterm"
 $yaziTarget    = Join-Path $env:APPDATA "yazi\config"
+$spotifyTarget = Join-Path $env:USERPROFILE ".config\spotify-player"
 
 Write-Host ""
 Write-Host "=== Setting up junctions ==="
@@ -660,6 +675,7 @@ Create-Junction $nuTarget $nuSource
 Create-Junction $ghDashTarget $ghDashSource
 Create-Junction $weztermTarget $weztermSource
 Create-Junction $yaziTarget $yaziSource
+Create-Junction $spotifyTarget $spotifySource
 
 Write-Host ""
 Write-Host "=== Finished setting up junctions ==="

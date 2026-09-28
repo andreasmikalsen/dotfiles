@@ -1,0 +1,96 @@
+theme = "tokyonight-night"
+
+login_redirect_uri = "http://127.0.0.1:8989/login"
+client_port = 8080
+
+# Important:
+# Do NOT set client_id.
+# Let spotify-player use its built-in/default client.
+#
+# Recent versions explicitly support this and can fall back to the
+# ncspot client for API compatibility.
+
+tracks_playback_limit = 50
+top_tracks_limit = 100
+
+playback_format = """
+{status} {track} • {artists} {liked}
+{album}
+{metadata}
+"""
+
+playback_metadata_fields = [
+  "repeat",
+  "shuffle",
+  "volume",
+  "device",
+]
+
+app_refresh_duration_in_ms = 32
+playback_refresh_duration_in_ms = 0
+
+api_rate_limit_retries = 5
+page_size_in_rows = 25
+
+# Windows reliability
+enable_media_control = false
+
+# Use Spotify Desktop / phone / other Connect device for playback.
+enable_streaming = "Always"
+
+enable_audio_visualization = true
+visualization = "low"
+enable_notify = false
+enable_cover_image_cache = true
+
+notify_streaming_only = false
+
+play_icon = "▶"
+pause_icon = "Ⅱ"
+liked_icon = "♥"
+explicit_icon = "E"
+
+border_type = "Rounded"
+
+progress_bar_type = "Line"
+progress_bar_position = "Bottom"
+
+genre_num = 0
+
+# Keep image rendering out of the critical path.
+cover_img_length = 0
+cover_img_width = 5
+cover_img_pixels = 16
+
+seek_duration_secs = 5
+
+sort_artist_albums_by_type = true
+
+volume_scroll_step = 5
+enable_mouse_scroll_volume = false
+
+custom_queue = false
+pause_on_startup = false
+
+enable_relative_line_number = false
+
+[device]
+name = "spotify-player"
+device_type = "computer"
+volume = 70
+bitrate = 320
+
+# Irrelevant while streaming = Never, but keep sane defaults.
+audio_cache = false
+normalization = true
+autoplay = false
+
+[layout]
+library = {
+  playlist_percent = 40,
+  album_percent = 40
+}
+
+playback_window_position = "Bottom"
+playback_window_height = 10
+visualization_height = 4

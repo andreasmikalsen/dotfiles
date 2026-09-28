@@ -22,16 +22,18 @@ mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 zoxide init nushell | save -f ($nu.data-dir | path join "vendor/autoload/zoxide.nu")
 
-alias pui = pod tui
-alias nudb = cd $env.NU_DB_HOME
-alias nuapi = cd $env.NU_API_HOME
-alias gd  = gh dash
-alias dot = cd $env.DOTFILES
-alias github = cd ~/Documents/GitHub
-alias lg = lazygit
-alias l = eza --icons=auto --group-directories-first
-alias ll = eza -la --icons=auto --group-directories-first
-alias nuobs = cd $env.NU_OBSERVE_HOME
+alias pui     = pod tui
+alias nudb    = cd $env.NU_DB_HOME
+alias nuapi   = cd $env.NU_API_HOME
+alias gd      = gh dash
+alias dot     = cd $env.DOTFILES
+alias github  = cd ~/Documents/GitHub
+alias lg      = lazygit
+alias l       = eza --icons=auto --group-directories-first
+alias ll      = eza -la --icons=auto --group-directories-first
+alias nuobs   = cd $env.NU_OBSERVE_HOME
+alias sfy     = spotify_player
+alias spotify = spotify_player
 
 source ($nu.default-config-dir | path join "nu_scripts" "git-completion.nu")
 
