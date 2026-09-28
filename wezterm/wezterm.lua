@@ -26,10 +26,14 @@ local function ActivateThing(direction)
 		if direction == "next" then
 			if index < #panes then
 				panes[index + 1].pane:activate()
+			else
+				panes[1].pane:activate()
 			end
 		elseif direction == "prev" then
 			if index > 1 then
 				panes[index - 1].pane:activate()
+			else
+				panes[#panes].pane:activate()
 			end
 		end
 
