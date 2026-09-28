@@ -60,6 +60,20 @@ local function ActivateThing(direction)
 	return wezterm.action_callback(callback)
 end
 
+local function ActivatePaneByIndex(index)
+	return wezterm.action_callback(function(window, pane)
+		local panes = window:active_tab():panes_with_info()
+
+		if index == 0 then
+			index = #panes
+		end
+
+		if panes[index] then
+			panes[index].pane:activate()
+		end
+	end)
+end
+
 -- =============================================================================
 -- Status
 -- =============================================================================
@@ -249,6 +263,18 @@ local keys = {
 	{ key = "k", mods = MOD_KEY, action = ActivateThing("prev") },
 	{ key = "l", mods = MOD_KEY, action = act.ActivateTabRelative(1) },
 	{ key = "h", mods = MOD_KEY, action = act.ActivateTabRelative(-1) },
+
+	-- Direct pane navigation
+	{ key = "1", mods = MOD_KEY, action = ActivatePaneByIndex(1) },
+	{ key = "2", mods = MOD_KEY, action = ActivatePaneByIndex(2) },
+	{ key = "3", mods = MOD_KEY, action = ActivatePaneByIndex(3) },
+	{ key = "4", mods = MOD_KEY, action = ActivatePaneByIndex(4) },
+	{ key = "5", mods = MOD_KEY, action = ActivatePaneByIndex(5) },
+	{ key = "6", mods = MOD_KEY, action = ActivatePaneByIndex(6) },
+	{ key = "7", mods = MOD_KEY, action = ActivatePaneByIndex(7) },
+	{ key = "8", mods = MOD_KEY, action = ActivatePaneByIndex(8) },
+	{ key = "9", mods = MOD_KEY, action = ActivatePaneByIndex(9) },
+	{ key = "0", mods = MOD_KEY, action = ActivatePaneByIndex(0) },
 
 	-- Pane
 	{ key = "f", mods = MOD_KEY, action = act.TogglePaneZoomState },
