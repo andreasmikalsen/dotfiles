@@ -179,11 +179,6 @@ return {
 		cmd = "Trouble",
 
 		keys = {
-			{ "gd", "<cmd>Trouble lsp_definitions<cr>" },
-			{ "gD", "<cmd>Trouble lsp_declarations<cr>" },
-			{ "gi", "<cmd>Trouble lsp_implementations<cr>" },
-			{ "go", "<cmd>Trouble lsp_type_definitions<cr>" },
-			{ "gr", "<cmd>Trouble lsp_references<cr>" },
 			{ "g?", "<cmd>Trouble diagnostics<cr>" },
 			{
 				"<leader>ts",
