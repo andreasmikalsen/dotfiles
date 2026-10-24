@@ -92,12 +92,16 @@ return {
 
 					local builtin = require("telescope.builtin")
 
-					-- IntelliJ-ish navigation
+					-- Direct jumps keep the current file in Neovim's jump list, so
+					-- Ctrl+Alt+Left/Right can return to and revisit code locations.
 					map("<C-b>", function()
-						builtin.lsp_definitions({
-							reuse_win = true,
-						})
+						vim.lsp.buf.definition()
 					end, "Go to definition")
+
+					map("<F12>", vim.lsp.buf.definition, "Go to definition")
+					map("<S-F12>", builtin.lsp_references, "Find usages")
+					map("<C-M-Left>", "<C-o>", "Navigate back")
+					map("<C-M-Right>", "<C-i>", "Navigate forward")
 
 					map("<leader>li", function()
 						builtin.lsp_implementations({

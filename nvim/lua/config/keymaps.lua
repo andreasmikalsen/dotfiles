@@ -24,6 +24,11 @@ map("n", "<C-j>", "<C-w><C-j>", { desc = "Focus lower window" })
 map("n", "<C-k>", "<C-w><C-k>", { desc = "Focus upper window" })
 map("n", "<C-l>", "<C-w><C-l>", { desc = "Focus right window" })
 
+-- IntelliJ-style location history. These use Neovim's jump list, populated by
+-- definition jumps, searches, and other meaningful cursor moves.
+map("n", "<C-M-Left>", "<C-o>", { desc = "Navigate back" })
+map("n", "<C-M-Right>", "<C-i>", { desc = "Navigate forward" })
+
 -- Insert mode
 map("i", "jj", "<Esc>", { desc = "Normal mode" })
 map("i", "jk", "<Esc>", { desc = "Normal mode" })
