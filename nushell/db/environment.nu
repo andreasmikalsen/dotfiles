@@ -23,23 +23,32 @@ export def --env "db use" [
     error make { msg: $"Database not found: ($name)" }
   }
 
-  $env.NU_DB_DATABASE = $name
+  let config_path = ($root | path join "database.nuon")
+  let config = if ($config_path | path exists) { open $config_path } else { {} }
+  let selected_environment = if $environment == null {
+    $config | get -o default_environment
+  } else {
+    $environment
+  }
 
-  if $environment != null {
+  if $selected_environment != null {
     let env_path = (
       $root
-      | path join "environments" $"($environment).nuon"
+      | path join "environments" $"($selected_environment).nuon"
     )
 
     if not ($env_path | path exists) {
       error make {
-        msg: $"Environment '($environment)' not found for database '($name)'"
+        msg: $"Environment '($selected_environment)' not found for database '($name)'"
       }
     }
 
-    $env.NU_DB_ENV = $environment
+    $env.NU_DB_ENV = $selected_environment
+  } else if "NU_DB_ENV" in $env {
+    hide-env NU_DB_ENV
   }
 
+  $env.NU_DB_DATABASE = $name
   db status
 }
 

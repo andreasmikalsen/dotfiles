@@ -283,11 +283,8 @@ export def "api auth status" [] {
   let root = (token-dir)
 
   let pattern = (
-    $"(selected-collection)--(selected-environment)--*.token"
-  )
-
-  let pattern = (
-    $"($root)/**/*.nuon"
+    $root
+    | path join $"(selected-collection)--(selected-environment)--*.token"
     | str replace --all '\' '/'
     | into glob
   )
@@ -321,11 +318,8 @@ export def "api auth clear" [] {
   let root = (token-dir)
 
   let pattern = (
-    $"(selected-collection)--(selected-environment)--*.token"
-  )
-
-  let pattern = (
-    $"($root)/**/*.nuon"
+    $root
+    | path join $"(selected-collection)--(selected-environment)--*.token"
     | str replace --all '\' '/'
     | into glob
   )

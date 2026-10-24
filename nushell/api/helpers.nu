@@ -95,6 +95,11 @@ def render-string [value: string, variables: record] {
 
         $result
         | str replace --all $placeholder ($row.value | into string)
+      } else if ($kind | str starts-with "record") and (($row.value | columns) == ["secret"]) {
+        let placeholder = (["{{" $row.key "}}"] | str join)
+
+        $result
+        | str replace --all $placeholder (resolve-secret $row.value)
       } else {
         $result
       }

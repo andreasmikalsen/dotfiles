@@ -1,3 +1,11 @@
+[CmdletBinding()]
+param(
+    [switch]$WhatIf,
+    [switch]$SkipToolInstall,
+    [switch]$SkipLinks,
+    [switch]$SkipNeovim
+)
+
 # ============================================================
 # Bootstrap development environment
 # ============================================================
@@ -5,6 +13,19 @@
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+if ($WhatIf) {
+    Write-Host "=== Setup plan (no changes will be made) ==="
+    Write-Host "Repository: $repoRoot"
+    Write-Host "User environment: DOTFILES, NU_API_HOME, NU_DB_HOME, NU_OBSERVE_HOME"
+    Write-Host "Private workspaces: %LOCALAPPDATA%\nu-api, nu-db, nu-observe"
+    Write-Host "Font: install FiraCode Nerd Font for the current user"
+    if (-not $SkipToolInstall) { Write-Host "Tools: install required WinGet, Cargo, Go, and GitHub CLI dependencies" }
+    if (-not $SkipLinks) { Write-Host "Links: create junctions for Neovim, Nushell, WezTerm, Yazi, gh-dash, and spotify-player" }
+    if (-not $SkipNeovim) { Write-Host "Neovim: optionally sync plugins and Mason tools" }
+    Write-Host "Run without -WhatIf to apply this plan."
+    return
+}
 
 
 # ============================================================
@@ -439,14 +460,16 @@ function Create-Junction {
         Write-Host ""
         Write-Host "$Target already exists."
 
-        $answer = Read-Host "Delete it and recreate the junction? (y/N)"
+        $answer = Read-Host "Back up '$Target' and recreate the junction? (y/N)"
 
         if ($answer -notin @("y", "Y")) {
             Write-Host "Skipping."
             return
         }
 
-        Remove-Item $Target -Recurse -Force
+        $backup = "$Target.backup-$(Get-Date -Format 'yyyyMMddHHmmss')"
+        Move-Item -LiteralPath $Target -Destination $backup
+        Write-Host "[BACKUP] Existing target moved to: $backup"
     }
 
     $parent = Split-Path -Parent $Target
@@ -464,7 +487,6 @@ function Create-Junction {
     Write-Host "[OK] Created junction:"
     Write-Host "  $Target -> $Source"
 }
-
 
 # ============================================================
 # Neovim
@@ -566,9 +588,10 @@ New-Item -ItemType Directory -Force -Path (Join-Path $observeHome "queries") | O
 # Install dependencies
 # ============================================================
 
-Write-Host ""
-Write-Host "=== Installing dependencies ==="
-Write-Host ""
+if (-not $SkipToolInstall) {
+    Write-Host ""
+    Write-Host "=== Installing dependencies ==="
+    Write-Host ""
 
 # Core
 Ensure-WingetPackage "Git.Git" "Git"
@@ -645,8 +668,12 @@ Ensure-Diffnav
 # Git configuration
 Ensure-GitAlias "c" "checkout"
 
-Write-Host ""
-Write-Host "=== Finished installing dependencies ==="
+    Write-Host ""
+    Write-Host "=== Finished installing dependencies ==="
+}
+else {
+    Write-Host "[SKIP] Dependency installation skipped."
+}
 
 
 # ============================================================
@@ -667,44 +694,54 @@ $weztermTarget = Join-Path $env:USERPROFILE ".config\wezterm"
 $yaziTarget    = Join-Path $env:APPDATA "yazi\config"
 $spotifyTarget = Join-Path $env:USERPROFILE ".config\spotify-player"
 
-Write-Host ""
-Write-Host "=== Setting up junctions ==="
-Write-Host ""
+if (-not $SkipLinks) {
+    Write-Host ""
+    Write-Host "=== Setting up junctions ==="
+    Write-Host ""
 
-Create-Junction $nvimTarget $nvimSource
-Create-Junction $nuTarget $nuSource
-Create-Junction $ghDashTarget $ghDashSource
-Create-Junction $weztermTarget $weztermSource
-Create-Junction $yaziTarget $yaziSource
-Create-Junction $spotifyTarget $spotifySource
+    Create-Junction $nvimTarget $nvimSource
+    Create-Junction $nuTarget $nuSource
+    Create-Junction $ghDashTarget $ghDashSource
+    Create-Junction $weztermTarget $weztermSource
+    Create-Junction $yaziTarget $yaziSource
+    Create-Junction $spotifyTarget $spotifySource
 
-Write-Host ""
-Write-Host "=== Finished setting up junctions ==="
+    Write-Host ""
+    Write-Host "=== Finished setting up junctions ==="
+}
+else {
+    Write-Host "[SKIP] Junction setup skipped."
+}
 
 
 # ============================================================
 # Neovim
 # ============================================================
 
-Write-Host ""
-Write-Host "=== Initializing Neovim ==="
-Write-Host ""
+if (-not $SkipNeovim) {
+    Write-Host ""
+    Write-Host "=== Initializing Neovim ==="
+    Write-Host ""
 
-$title = "Initialize Neovim"
-$message = "Do you want to initialize Neovim?"
+    $title = "Initialize Neovim"
+    $message = "Do you want to initialize Neovim?"
 
-$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Initialize Neovim"
-$no  = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Skip Neovim initialization"
+    $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Initialize Neovim"
+    $no  = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Skip Neovim initialization"
 
-$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
+    $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
 
-$result = $Host.UI.PromptForChoice($title, $message, $options, 1)
+    $result = $Host.UI.PromptForChoice($title, $message, $options, 1)
 
-if ($result -eq 0) {
-    Initialize-Neovim
+    if ($result -eq 0) {
+        Initialize-Neovim
+    }
+    else {
+        Write-Host "Skipping Neovim initialization."
+    }
 }
 else {
-    Write-Host "Skipping Neovim initialization."
+    Write-Host "[SKIP] Neovim initialization skipped."
 }
 
 Write-Host ""

@@ -38,6 +38,18 @@ Or name the destination collection explicitly:
 api import postman-env ./Dev.postman_environment.json --collection work-api --env dev
 ```
 
+## Credentials and sensitive values
+
+Collection and environment variable names containing `password`, `secret`, `token`, `api_key`, `authorization`, or `credential` are imported as `NU_API_IMPORT_*` environment-variable secret references. Basic passwords, bearer tokens, OAuth client IDs, client secrets, and static OAuth access tokens are treated the same way. Their literal values are not written to the generated private workspace.
+
+Set the reported `NU_API_IMPORT_*` variables in your user or session environment before running an imported request. To intentionally retain literal environment values in the private workspace, use:
+
+```nu
+api import postman-env ./Dev.postman_environment.json --env dev --include-secrets
+```
+
+`--include-secrets` affects environment variables only. Imported auth credentials always use secret references.
+
 ## Converted automatically
 
 - Nested Postman folders -> nested `requests/` directories
