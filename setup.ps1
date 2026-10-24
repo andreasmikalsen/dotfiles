@@ -488,34 +488,6 @@ function Create-Junction {
     Write-Host "  $Target -> $Source"
 }
 
-function Install-UserFont {
-    param(
-        [string]$Source,
-        [string]$FontFileName,
-        [string]$FontRegistryName
-    )
-
-    if (-not (Test-Path $Source)) {
-        throw "Font file not found: $Source"
-    }
-
-    $fontDirectory = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
-    $target = Join-Path $fontDirectory $FontFileName
-    $fontRegistryPath = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
-    $registeredPath = Get-ItemPropertyValue -Path $fontRegistryPath -Name $FontRegistryName -ErrorAction SilentlyContinue
-
-    if ((Test-Path $target) -and $registeredPath -eq $target) {
-        Write-Host "[OK] $FontRegistryName already installed."
-        return
-    }
-
-    New-Item -ItemType Directory -Force -Path $fontDirectory | Out-Null
-    Copy-Item -Path $Source -Destination $target -Force
-    New-ItemProperty -Path $fontRegistryPath -Name $FontRegistryName -Value $target -PropertyType String -Force | Out-Null
-    Write-Host "[OK] Installed $FontRegistryName for the current user."
-}
-
-
 # ============================================================
 # Neovim
 # ============================================================
@@ -557,11 +529,6 @@ $env:DOTFILES = $repoRoot
     $repoRoot,
     "User"
 )
-
-Install-UserFont `
-    (Join-Path $repoRoot "font\FiraCodeNerdFont-Regular.ttf") `
-    "FiraCodeNerdFont-Regular.ttf" `
-    "FiraCode Nerd Font (TrueType)"
 
 # ============================================================
 # Setup nu-api
