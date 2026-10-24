@@ -620,6 +620,7 @@ Ensure-CargoPackage "tree-sitter-cli" "tree-sitter"
 Ensure-CargoPackage "gh-review" "gh-review"
 Ensure-CargoPackage "bottom" "bottom"
 Ensure-CargoPackage "tetro-tui" "tetro-tui"
+Ensure-CargoPackage "jwt-cli" "jwt-cli"
 Ensure-Rainfrog
 
 # Custom spotify player

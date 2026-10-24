@@ -34,6 +34,7 @@ alias ll      = eza -la --icons=auto --group-directories-first
 alias nuobs   = cd $env.NU_OBSERVE_HOME
 alias sfy     = spotify_player
 alias spotify = spotify_player
+alias todo    = nvim ~/todo
 
 source ($nu.default-config-dir | path join "nu_scripts" "git-completion.nu")
 
