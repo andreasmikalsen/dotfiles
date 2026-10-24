@@ -6,6 +6,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+Add-Type -AssemblyName System.Security
+
 $inputText = [Console]::In.ReadToEnd().Trim()
 
 $entropy = [Text.Encoding]::UTF8.GetBytes(

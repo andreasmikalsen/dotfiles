@@ -37,8 +37,33 @@ def kv-list-to-record [items: any] {
     }
 }
 
+# Identify variable names that conventionally hold credentials or tokens.
+def sensitive-key [key: string] {
+  $key =~ '(?i)(password|passwd|secret|token|api[_-]?key|authorization|credential)'
+}
+
+# Make a stable, valid environment variable name for a redacted imported value.
+def secret-env-key [key: string] {
+  let normalized = (
+    $key
+    | str uppercase
+    | str replace --all --regex '[^A-Z0-9]+' '_'
+    | str trim --char '_'
+  )
+  $"NU_API_IMPORT_($normalized)"
+}
+
+def secret-reference [value: any, key: string] {
+  if $value == null or (($value | describe) == "string" and ($value | str contains "{{")) {
+    $value
+  } else {
+    { secret: { provider: "env" key: (secret-env-key $key) } }
+  }
+}
+
 # Convert Postman collection/environment variables to a Nushell record.
-def variables-to-record [items: any] {
+# Sensitive values become environment-backed secret references unless explicitly retained.
+def variables-to-record [items: any, --include-secrets] {
   if $items == null {
     return {}
   }
@@ -51,7 +76,12 @@ def variables-to-record [items: any] {
         $result
       } else {
         let value = ($item | get -o value)
-        $result | upsert ($key | into string) (if $value == null { "" } else { $value })
+        let imported = if (not $include_secrets) and (sensitive-key ($key | into string)) {
+          secret-reference $value ($key | into string)
+        } else {
+          if $value == null { "" } else { $value }
+        }
+        $result | upsert ($key | into string) $imported
       }
     }
 }
@@ -82,7 +112,7 @@ def convert-auth [auth: any] {
         value: {
           type: "basic"
           username: ($values | get -o username)
-          password: ($values | get -o password)
+          password: (secret-reference ($values | get -o password) "basic_password")
         }
         warning: null
       }
@@ -93,7 +123,7 @@ def convert-auth [auth: any] {
       {
         value: {
           type: "bearer"
-          token: ($values | get -o token)
+          token: (secret-reference ($values | get -o token) "bearer_token")
         }
         warning: null
       }
@@ -134,8 +164,8 @@ def convert-auth [auth: any] {
           value: {
             type: "oauth2_client_credentials"
             token_url: $token_url
-            client_id: $client_id
-            client_secret: $client_secret
+            client_id: (secret-reference $client_id "oauth_client_id")
+            client_secret: (secret-reference $client_secret "oauth_client_secret")
             scope: $scope
           }
           warning: null
@@ -144,7 +174,7 @@ def convert-auth [auth: any] {
         {
           value: {
             type: "bearer"
-            token: $access_token
+            token: (secret-reference $access_token "oauth_access_token")
           }
           warning: "OAuth2 auth was imported as a static bearer token because it was not client_credentials."
         }
@@ -657,6 +687,7 @@ export def "api import postman-env" [
   file: string
   --environment: string
   --collection: string
+  --include-secrets
   --force
 ] {
   let source_path = ($file | path expand)
@@ -682,10 +713,13 @@ export def "api import postman-env" [
     }
   }
 
-  let variables = (variables-to-record ($postman_env | get -o values))
+  let variables = (variables-to-record ($postman_env | get -o values) --include-secrets=$include_secrets)
   $variables | to nuon --pretty | save --force $target
 
   print $"Imported Postman environment: ($environment_name)"
+  if not $include_secrets {
+    print "Sensitive variable values were replaced with NU_API_IMPORT_* environment references."
+  }
   {
     collection: $collection_name
     environment: $environment_name

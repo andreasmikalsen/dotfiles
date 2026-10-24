@@ -16,11 +16,27 @@ $env.config.history.file_format = "sqlite"
 # Workaround for WezTerm/Nushell rendering issue
 $env.config.shell_integration.osc133 = false
 
-$env.STARSHIP_CONFIG = ($env.DOTFILES | path join "starship" "starship.toml")
+if "DOTFILES" in $env {
+  let starship_config = ($env.DOTFILES | path join "starship" "starship.toml")
+  if ($starship_config | path exists) {
+    $env.STARSHIP_CONFIG = $starship_config
+  }
+}
 
-mkdir ($nu.data-dir | path join "vendor/autoload")
-starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
-zoxide init nushell | save -f ($nu.data-dir | path join "vendor/autoload/zoxide.nu")
+# Nushell loads vendor autoload files automatically. Generate them only when absent
+# so starting a shell never depends on rewriting files or optional commands.
+let vendor_autoload = ($nu.data-dir | path join "vendor/autoload")
+mkdir $vendor_autoload
+
+let starship_autoload = ($vendor_autoload | path join "starship.nu")
+if (which starship | is-not-empty) and not ($starship_autoload | path exists) {
+  starship init nu | save -f $starship_autoload
+}
+
+let zoxide_autoload = ($vendor_autoload | path join "zoxide.nu")
+if (which zoxide | is-not-empty) and not ($zoxide_autoload | path exists) {
+  zoxide init nushell | save -f $zoxide_autoload
+}
 
 alias pui     = pod tui
 alias nudb    = cd $env.NU_DB_HOME
@@ -42,13 +58,17 @@ source ($nu.default-config-dir | path join "nu_scripts" "git-completion.nu")
 def --env y [...args] {
   let tmp = (mktemp -t "yazi-cwd.XXXXXX")
 
-  ^yazi ...$args --cwd-file $tmp
+  try {
+    ^yazi ...$args --cwd-file $tmp
 
-  let cwd = (open $tmp)
+    if ($tmp | path exists) {
+      let cwd = (open $tmp | str trim)
 
-  if $cwd != $env.PWD and ($cwd | path exists) {
-    cd $cwd
+      if not ($cwd | is-empty) and $cwd != $env.PWD and ($cwd | path exists) {
+        cd $cwd
+      }
+    }
+  } finally {
+    rm -f $tmp
   }
-
-  rm -fp $tmp
 }
